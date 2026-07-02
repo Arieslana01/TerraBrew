@@ -1,0 +1,169 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design system definition.
+ *
+ * The @theme inline block maps CSS custom properties to Tailwind utility
+ * classes (e.g. --color-primary -> bg-primary, text-primary).
+ *
+ * The :root and .dark blocks define the actual color values using oklch.
+ * All colors MUST use oklch format.
+ *
+ * To add a new semantic color:
+ * 1. Add the variable to :root (light value) and .dark (dark value)
+ * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-coffee: var(--coffee);
+  --color-coffee-deep: var(--coffee-deep);
+  --color-cream: var(--cream);
+  --color-forest: var(--forest);
+  --color-forest-deep: var(--forest-deep);
+  --color-honey: var(--honey);
+  --color-beige: var(--beige);
+}
+
+:root {
+  --radius: 0.875rem;
+  /* TerraBrew Palette */
+  --background: #FAF8F2;                         /* very light warm cream tint */
+  --foreground: #42302c;                         /* dark coffee brown */
+  --card: #FCFAF6;                               /* soft card background */
+  --card-foreground: #42302c;
+  --popover: #FCFAF6;
+  --popover-foreground: #42302c;
+  --primary: #42302c;                            /* dark coffee */
+  --primary-foreground: #eee4c4;                  /* cream text */
+  --secondary: #eee4c4;                          /* cream background */
+  --secondary-foreground: #42302c;
+  --muted: #f0ebd3;                              /* muted beige */
+  --muted-foreground: #7c6a66;                   /* muted brown */
+  --accent: #27432b;                             /* forest green */
+  --accent-foreground: #eee4c4;
+  --destructive: #9d2925;                        /* deep cherry red */
+  --destructive-foreground: #eee4c4;
+  --border: #dacfbe;                             /* warm border */
+  --input: #e5dac7;
+  --ring: #27432b;
+  --chart-1: #27432b;                            /* forest green */
+  --chart-2: #42302c;                            /* coffee */
+  --chart-3: #d88f34;                            /* honey */
+  --chart-4: #4682b4;                            /* steel blue (water) */
+  --chart-5: #b22222;                            /* firebrick (cherry / wine) */
+  --sidebar: #42302c;                            /* coffee sidebar */
+  --sidebar-foreground: #eee4c4;
+  --sidebar-primary: #27432b;
+  --sidebar-primary-foreground: #eee4c4;
+  --sidebar-accent: #2c1f1d;
+  --sidebar-accent-foreground: #eee4c4;
+  --sidebar-border: #523f3b;
+  --sidebar-ring: #27432b;
+
+  --coffee: #42302c;
+  --coffee-deep: #2c1f1d;
+  --cream: #eee4c4;
+  --forest: #27432b;
+  --forest-deep: #1c301e;
+  --honey: #d88f34;
+  --beige: #f5f0dc;
+
+  --gradient-hero: linear-gradient(135deg, #eee4c4 0%, #FAF8F2 100%);
+  --gradient-primary: linear-gradient(135deg, var(--coffee) 0%, var(--coffee-deep) 100%);
+  --gradient-eco: linear-gradient(135deg, var(--forest) 0%, var(--forest-deep) 100%);
+  --gradient-warm: linear-gradient(135deg, var(--honey) 0%, var(--coffee) 100%);
+
+  --shadow-soft: 0 4px 16px -4px rgba(66, 48, 44, 0.08);
+  --shadow-card: 0 8px 24px -8px rgba(66, 48, 44, 0.12);
+  --shadow-elegant: 0 20px 50px -20px rgba(66, 48, 44, 0.25);
+}
+
+.dark {
+  --background: #150f0e;                         /* deep roasted coffee color */
+  --foreground: #eee4c4;                         /* cream text */
+  --card: #1f1715;
+  --card-foreground: #eee4c4;
+  --popover: #1f1715;
+  --popover-foreground: #eee4c4;
+  --primary: #eee4c4;                            /* cream */
+  --primary-foreground: #150f0e;
+  --secondary: #27432b;                          /* dark forest green */
+  --secondary-foreground: #eee4c4;
+  --muted: #2d1f1c;
+  --muted-foreground: #a69895;
+  --accent: #27432b;
+  --accent-foreground: #eee4c4;
+  --destructive: #b33935;
+  --destructive-foreground: #eee4c4;
+  --border: rgba(238, 228, 196, 0.1);
+  --input: rgba(238, 228, 196, 0.15);
+  --ring: #eee4c4;
+  --chart-1: #27432b;
+  --chart-2: #eee4c4;
+  --chart-3: #d88f34;
+  --chart-4: #4682b4;
+  --chart-5: #b22222;
+  --sidebar: #1f1715;
+  --sidebar-foreground: #eee4c4;
+  --sidebar-primary: #27432b;
+  --sidebar-primary-foreground: #eee4c4;
+  --sidebar-accent: #2d1f1c;
+  --sidebar-accent-foreground: #eee4c4;
+  --sidebar-border: rgba(238, 228, 196, 0.1);
+  --sidebar-ring: #eee4c4;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+}
