@@ -5,6 +5,7 @@ import { crypto } from "crypto";
 // In-memory fallback database for Mock Mode (when PostgreSQL is not running)
 const mockCertifications: any[] = [];
 const mockPredictions: any[] = [];
+const mockProfiles: any[] = [];
 
 // Web Crypto SHA-256 Hashing helper
 async function hashPassword(password: string): Promise<string> {
@@ -40,7 +41,32 @@ export const registerUser = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const db = await getDb();
     if (!db) {
-      throw new Error("Database connection not available");
+      const existing = mockProfiles.find(p => p.email === data.email.toLowerCase());
+      if (existing) {
+        throw new Error("Email already registered");
+      }
+
+      const pwHash = await hashPassword(data.password);
+      const newProfile = {
+        id: mockProfiles.length + 1000,
+        email: data.email.toLowerCase(),
+        password_hash: pwHash,
+        full_name: data.fullName,
+        role: data.role,
+        farm_name: data.farmName || null,
+        organization: data.organization || null,
+        country: data.country || null,
+        region: data.region || null,
+        created_at: new Date().toISOString()
+      };
+
+      mockProfiles.push(newProfile);
+
+      const { password_hash, ...userProfile } = newProfile;
+      return {
+        success: true,
+        user: userProfile,
+      };
     }
 
     try {
@@ -145,7 +171,21 @@ export const loginUser = createServerFn({ method: "POST" })
     }
 
     if (!db) {
-      throw new Error("Database connection not available");
+      const user = mockProfiles.find(p => p.email === emailLower);
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      const pwHash = await hashPassword(data.password);
+      if (user.password_hash !== pwHash) {
+        throw new Error("Incorrect password");
+      }
+
+      const { password_hash, ...profile } = user;
+      return {
+        success: true,
+        user: profile,
+      };
     }
 
     try {
@@ -551,5 +591,48 @@ export const askTerryChatbot = createServerFn({ method: "POST" })
     } catch (error: any) {
       console.error("Ask Terry Chatbot Error:", error);
       return { success: false, error: error.message };
+    }
+  });
+
+export const getLiveCoffeePrice = createServerFn({ method: "GET" })
+  .handler(async () => {
+    try {
+      const res = await fetch("https://id.tradingeconomics.com/commodity/coffee", {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        }
+      });
+      const html = await res.text();
+      // Match value in TEChartsMeta
+      const match = html.match(/"value":\s*(\d+(?:\.\d+)?)/);
+      if (match) {
+        return {
+          priceCentsLbs: parseFloat(match[1]),
+          success: true
+        };
+      }
+      
+      // Fallback regex to match Indonesian text like "302,13 USd/Lbs"
+      const fallbackMatch = html.match(/Kopi\s+(?:turun|naik)\s+menjadi\s+([\d,.]+)\s+USd\/Lbs/i);
+      if (fallbackMatch) {
+        const cents = parseFloat(fallbackMatch[1].replace(",", "."));
+        return {
+          priceCentsLbs: cents,
+          success: true
+        };
+      }
+      
+      return {
+        priceCentsLbs: 300.0,
+        success: false,
+        msg: "Failed to parse price, using default fallback."
+      };
+    } catch (e) {
+      console.error("Error fetching coffee price:", e);
+      return {
+        priceCentsLbs: 300.0,
+        success: false,
+        msg: "Error fetching price, using default fallback."
+      };
     }
   });

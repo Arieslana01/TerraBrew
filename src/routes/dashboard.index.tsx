@@ -43,7 +43,12 @@ import {
   YAxis,
   Tooltip as RTooltip,
   CartesianGrid,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
 } from "recharts";
+import { getLiveCoffeePrice } from "@/lib/auth-server";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
@@ -111,7 +116,7 @@ const METHOD_DETAILS = {
     harvest: "Selective ripe cherries",
     depulping: "Yes (complete skin/mucilage removal)",
     fermentation: "Submerged wet fermentation, Aerobic",
-    water: "Sangat tinggi (5–40 L/kg cherry)",
+    water: "Very high (5–40 L/kg cherry)",
     oxygen: "Aerobic",
     drying: "Sun patio or Mechanical dryer",
     moistureTarget: "10–12%",
@@ -122,18 +127,18 @@ const METHOD_DETAILS = {
     // Chemistry
     ph: "5.1",
     acidity: "Medium",
-    ester: "Rendah",
-    alcohol: "Rendah",
-    sugar: "Rendah",
-    chlorogenic: "Relatif stabil (Tinggi)",
+    ester: "Low",
+    alcohol: "Low",
+    sugar: "Low",
+    chlorogenic: "Relatively stable (High)",
     caffeine: "Normal",
-    protein: "Tinggi",
-    fat: "Tinggi",
-    uniformity: "Tinggi (Kadar air akhir stabil)",
+    protein: "High",
+    fat: "High",
+    uniformity: "High (Stable final moisture content)",
     // Sensory
     flavor: "Clean cup, bright acidity, high clarity, light-medium body",
-    environmentalRisk: "Limbah cair sangat tinggi (Wastewater kaya bahan organik)",
-    dominantRisk: "Rewetting saat drying, under-fermentation jika tergesa-gesa",
+    environmentalRisk: "Very high wastewater output (Rich in organic matter)",
+    dominantRisk: "Rewetting during drying, under-fermentation if rushed",
   },
   semi_washed: {
     name: "Semi Washed Process",
@@ -141,7 +146,7 @@ const METHOD_DETAILS = {
     harvest: "Selective hand-picked",
     depulping: "Partial (demucilaged mechanically)",
     fermentation: "Short soak / pile fermentation",
-    water: "Sedang (1–10 L/kg cherry)",
+    water: "Medium (1–10 L/kg cherry)",
     oxygen: "Aerobic",
     drying: "Sun drying on concrete/beds",
     moistureTarget: "12%",
@@ -152,17 +157,17 @@ const METHOD_DETAILS = {
     // Chemistry
     ph: "4.9",
     acidity: "Medium",
-    ester: "Rendah-Sedang",
-    alcohol: "Rendah",
-    sugar: "Rendah-Sedang",
-    chlorogenic: "Relatif stabil",
+    ester: "Low-Medium",
+    alcohol: "Low",
+    sugar: "Low-Medium",
+    chlorogenic: "Relatively stable",
     caffeine: "Normal",
-    protein: "Sedang-Tinggi",
-    fat: "Sedang-Tinggi",
-    uniformity: "Sedang-Tinggi",
+    protein: "Medium-High",
+    fat: "Medium-High",
+    uniformity: "Medium-High",
     // Sensory
     flavor: "Balanced body, clean cup, mild acidity, herbal/spicy notes",
-    environmentalRisk: "Limbah sedang (Masih menghasilkan air cucian masam)",
+    environmentalRisk: "Medium waste (Produces acidic washwater)",
     dominantRisk: "Moderate drying risk, physical contamination during wet hulled",
   },
   honey: {
@@ -171,7 +176,7 @@ const METHOD_DETAILS = {
     harvest: "Selective ripe cherries",
     depulping: "Yes (mucilage deliberately retained)",
     fermentation: "Dry fermentation on mucilage, Aerobic",
-    water: "Rendah-sedang (0.5–5 L/kg cherry)",
+    water: "Low-medium (0.5–5 L/kg cherry)",
     oxygen: "Aerobic",
     drying: "Raised beds with frequent turning",
     moistureTarget: "10–12%",
@@ -181,18 +186,18 @@ const METHOD_DETAILS = {
     ecoScore: 85,
     // Chemistry
     ph: "4.8",
-    acidity: "Tinggi",
-    ester: "Sedang",
-    alcohol: "Rendah",
-    sugar: "Sedang-Tinggi",
-    chlorogenic: "Sedikit turun",
+    acidity: "High",
+    ester: "Medium",
+    alcohol: "Low",
+    sugar: "Medium-High",
+    chlorogenic: "Slightly decreased",
     caffeine: "Normal",
-    protein: "Sedang",
-    fat: "Sedang",
-    uniformity: "Sedang",
+    protein: "Medium",
+    fat: "Medium",
+    uniformity: "Medium",
     // Sensory
     flavor: "High sweetness, fruity, full body, balanced citric acidity",
-    environmentalRisk: "Limbah rendah (Hampir tidak ada air buangan pencucian)",
+    environmentalRisk: "Low waste (Almost no washing wastewater)",
     dominantRisk: "Sticky drying → high mold risk if Relative Humidity >70%",
   },
   wine: {
@@ -201,7 +206,7 @@ const METHOD_DETAILS = {
     harvest: "Selective premium ripe cherries",
     depulping: "No (whole cherry fermentation)",
     fermentation: "Extended cherry anaerobic fermentation",
-    water: "Rendah (Hampir tanpa air)",
+    water: "Low (Almost waterless)",
     oxygen: "Mostly Anaerobic (closed tanks)",
     drying: "Whole cherry drying (raised beds)",
     moistureTarget: "10–12%",
@@ -213,16 +218,16 @@ const METHOD_DETAILS = {
     ph: "4.3",
     acidity: "Very High",
     ester: "Very High (volatile esters dominate)",
-    alcohol: "Sangat tinggi (boozy/alcohol-like volatile)",
-    sugar: "Sangat tinggi",
-    chlorogenic: "Lebih turun",
+    alcohol: "Very high (boozy/alcohol-like volatile)",
+    sugar: "Very high",
+    chlorogenic: "More decreased",
     caffeine: "Medium",
-    protein: "Sedang",
-    fat: "Sedang",
-    uniformity: "Rendah (uneven moisture profile)",
+    protein: "Medium",
+    fat: "Medium",
+    uniformity: "Low (uneven moisture profile)",
     // Sensory
     flavor: "Winey, boozy, overripe fruit, fermented tropical notes, high complexity",
-    environmentalRisk: "Limbah sangat rendah (Tidak ada limbah air, residu padat organik)",
+    environmentalRisk: "Very low waste (No water waste, organic solid residues only)",
     dominantRisk: "Over-acidification, vinegar defect, off-flavors if over-fermented",
   },
   natural: {
@@ -231,7 +236,7 @@ const METHOD_DETAILS = {
     harvest: "Selective ripe cherries",
     depulping: "No (dried intact as whole cherries)",
     fermentation: "Cherry fermentation in skin, Aerobic",
-    water: "Sangat rendah (<1 L/kg cherry)",
+    water: "Very low (<1 L/kg cherry)",
     oxygen: "Aerobic",
     drying: "Whole cherry drying on patios / beds",
     moistureTarget: "10–12%",
@@ -241,18 +246,18 @@ const METHOD_DETAILS = {
     ecoScore: 95,
     // Chemistry
     ph: "4.7",
-    acidity: "Tinggi",
-    ester: "Tinggi",
-    alcohol: "Sedang",
-    sugar: "Tinggi (Kadar gula alami tertinggi)",
-    chlorogenic: "Lebih turun",
+    acidity: "High",
+    ester: "High",
+    alcohol: "Medium",
+    sugar: "High (Highest natural sugar level)",
+    chlorogenic: "More decreased",
     caffeine: "Lower",
     protein: "Lower",
     fat: "Lower",
-    uniformity: "Rendah (Risiko moisture tidak seragam)",
+    uniformity: "Low (Risk of non-uniform moisture)",
     // Sensory
     flavor: "Intense fruitiness, berry-like sweetness, heavy body, chocolatey undertones",
-    environmentalRisk: "Limbah sangat rendah (Tanpa limbah air, kulit kering dikomposkan)",
+    environmentalRisk: "Very low waste (No water waste, dried skins composted)",
     dominantRisk: "Fungal growth, black bean defects if RH >70% during drying",
   },
 };
@@ -277,6 +282,46 @@ function DashboardHome() {
   const [hasCalculated, setHasCalculated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGeocoding, setIsGeocoding] = useState(false);
+
+  // Tab switcher and batch allocation planner states
+  const [activeTab, setActiveTab] = useState<"predictor" | "planner">("predictor");
+  const [totalCherryWeight, setTotalCherryWeight] = useState(1000);
+  const [harvestSliderValue, setHarvestSliderValue] = useState(1000);
+
+  useEffect(() => {
+    setHarvestSliderValue(totalCherryWeight);
+  }, [totalCherryWeight]);
+
+  const [washedSplit, setWashedSplit] = useState(40);
+  const [semiWashedSplit, setSemiWashedSplit] = useState(20);
+  const [honeySplit, setHoneySplit] = useState(20);
+  const [wineSplit, setWineSplit] = useState(10);
+  const [naturalSplit, setNaturalSplit] = useState(10);
+
+  // Calculated allocation states (only update when the Process button is clicked)
+  const [calculatedWeight, setCalculatedWeight] = useState<number | null>(null);
+  const [calculatedWashed, setCalculatedWashed] = useState(0);
+  const [calculatedSemiWashed, setCalculatedSemiWashed] = useState(0);
+  const [calculatedHoney, setCalculatedHoney] = useState(0);
+  const [calculatedWine, setCalculatedWine] = useState(0);
+  const [calculatedNatural, setCalculatedNatural] = useState(0);
+  const [livePrice, setLivePrice] = useState<{ priceCentsLbs: number; success: boolean } | null>(null);
+  const [isFetchingPrice, setIsFetchingPrice] = useState(false);
+
+  useEffect(() => {
+    async function loadPrice() {
+      setIsFetchingPrice(true);
+      try {
+        const res = await getLiveCoffeePrice();
+        setLivePrice(res);
+      } catch (err) {
+        console.error("Failed to load live price:", err);
+      } finally {
+        setIsFetchingPrice(false);
+      }
+    }
+    loadPrice();
+  }, []);
   
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
@@ -547,11 +592,125 @@ function DashboardHome() {
     const temp = temperature[0];
     const r = rainfall[0];
 
-    if (r > 15) return { status: "Hujan Terdeteksi", action: "Tutup solar dryer / Pindahkan biji ke tempat teduh" };
-    if (h > 70) return { status: "Risiko Jamur Tinggi", action: "Aktifkan ventilasi / Tingkatkan airflow pengering mekanis" };
-    if (temp > 35) return { status: "Risiko Overheating", action: "Turunkan suhu airflow / Teduhkan jemuran" };
-    return { status: "Optimal", action: "Lanjutkan pemantauan parameter secara berkala" };
+    if (r > 15) return { status: "Rain Detected", action: "Close solar dryer / Move beans to shade" };
+    if (h > 70) return { status: "High Mold Risk", action: "Activate ventilation / Increase mechanical dryer airflow" };
+    if (temp > 35) return { status: "Overheating Risk", action: "Lower airflow temperature / Shade the drying beds" };
+    return { status: "Optimal", action: "Continue periodic parameter monitoring" };
   }, [humidity, temperature, rainfall]);
+
+  // Batch allocation planner calculations
+  const totalAllocation = useMemo(() => {
+    return Number(washedSplit) + Number(semiWashedSplit) + Number(honeySplit) + Number(wineSplit) + Number(naturalSplit);
+  }, [washedSplit, semiWashedSplit, honeySplit, wineSplit, naturalSplit]);
+
+  const priceCentsLbs = livePrice?.priceCentsLbs || 302.13;
+  const basePriceUsdKg = (priceCentsLbs / 100) * 2.20462;
+  const usdToIdrRate = 16300;
+  const basePriceIdrKg = basePriceUsdKg * usdToIdrRate;
+  const greenBeanRatio = 0.18;
+
+  const multipliers = {
+    washed: 1.0,
+    semi_washed: 1.05,
+    honey: 1.20,
+    wine: 1.50,
+    natural: 1.15,
+  };
+
+  const waterLitersPerKg = {
+    washed: 25,
+    semi_washed: 6,
+    honey: 2.5,
+    wine: 0.8,
+    natural: 0.5,
+  };
+
+  const ecoScores = {
+    washed: 55,
+    semi_washed: 75,
+    honey: 85,
+    wine: 90,
+    natural: 95,
+  };
+
+  const plannerMetrics = useMemo(() => {
+    const weight = calculatedWeight || 0;
+    const totalCalcAllocation = calculatedWashed + calculatedSemiWashed + calculatedHoney + calculatedWine + calculatedNatural;
+    const factor = totalCalcAllocation > 0 ? (weight / 100) : 0;
+
+    const allocations = {
+      washed: calculatedWashed * factor,
+      semi_washed: calculatedSemiWashed * factor,
+      honey: calculatedHoney * factor,
+      wine: calculatedWine * factor,
+      natural: calculatedNatural * factor,
+    };
+
+    const greenCoffeeYields = {
+      washed: allocations.washed * greenBeanRatio,
+      semi_washed: allocations.semi_washed * greenBeanRatio,
+      honey: allocations.honey * greenBeanRatio,
+      wine: allocations.wine * greenBeanRatio,
+      natural: allocations.natural * greenBeanRatio,
+    };
+
+    const waterUsages = {
+      washed: allocations.washed * waterLitersPerKg.washed,
+      semi_washed: allocations.semi_washed * waterLitersPerKg.semi_washed,
+      honey: allocations.honey * waterLitersPerKg.honey,
+      wine: allocations.wine * waterLitersPerKg.wine,
+      natural: allocations.natural * waterLitersPerKg.natural,
+    };
+
+    const revenuesUsd = {
+      washed: greenCoffeeYields.washed * basePriceUsdKg * multipliers.washed,
+      semi_washed: greenCoffeeYields.semi_washed * basePriceUsdKg * multipliers.semi_washed,
+      honey: greenCoffeeYields.honey * basePriceUsdKg * multipliers.honey,
+      wine: greenCoffeeYields.wine * basePriceUsdKg * multipliers.wine,
+      natural: greenCoffeeYields.natural * basePriceUsdKg * multipliers.natural,
+    };
+
+    const revenuesIdr = {
+      washed: revenuesUsd.washed * usdToIdrRate,
+      semi_washed: revenuesUsd.semi_washed * usdToIdrRate,
+      honey: revenuesUsd.honey * usdToIdrRate,
+      wine: revenuesUsd.wine * usdToIdrRate,
+      natural: revenuesUsd.natural * usdToIdrRate,
+    };
+
+    const totalGreenCoffee = Object.values(greenCoffeeYields).reduce((a, b) => a + b, 0);
+    const totalWater = Object.values(waterUsages).reduce((a, b) => a + b, 0);
+    const totalRevenueUsd = Object.values(revenuesUsd).reduce((a, b) => a + b, 0);
+    const totalRevenueIdr = Object.values(revenuesIdr).reduce((a, b) => a + b, 0);
+
+    const baselineWater = weight * waterLitersPerKg.washed;
+    const waterSavings = Math.max(0, baselineWater - totalWater);
+
+    const avgSustainabilityScore = weight > 0
+      ? (
+          (allocations.washed * ecoScores.washed +
+           allocations.semi_washed * ecoScores.semi_washed +
+           allocations.honey * ecoScores.honey +
+           allocations.wine * ecoScores.wine +
+           allocations.natural * ecoScores.natural) /
+          weight
+        ) / 100
+      : 0;
+
+    return {
+      allocations,
+      greenCoffeeYields,
+      waterUsages,
+      revenuesUsd,
+      revenuesIdr,
+      totalGreenCoffee,
+      totalWater,
+      totalRevenueUsd,
+      totalRevenueIdr,
+      waterSavings,
+      avgSustainabilityScore,
+    };
+  }, [calculatedWeight, calculatedWashed, calculatedSemiWashed, calculatedHoney, calculatedWine, calculatedNatural, basePriceUsdKg]);
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-6 text-foreground bg-background">
@@ -560,14 +719,46 @@ function DashboardHome() {
         <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-accent font-semibold">
           <Sparkles className="h-3.5 w-3.5 animate-spin" style={{ animationDuration: '4s' }} /> TerraBrew smart engine
         </div>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl text-primary">Smart Post-Harvest Predictor</h1>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl text-primary">
+          {activeTab === "predictor" ? "Smart Post-Harvest Predictor" : "Interactive Batch Planner & Revenue Predictor"}
+        </h1>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Sync real-time weather by entering location names, raw coordinates (e.g. `6.25, -75.56`), or manually adjusting variables.
+          {activeTab === "predictor"
+            ? "Sync real-time weather by entering location names, raw coordinates (e.g. `6.25, -75.56`), or manually adjusting variables."
+            : "Plan your post-harvest splits, view dynamic water footprint stats, and calculate revenue projections using real-time coffee market feeds."}
         </p>
       </div>
 
-      {/* INPUTS FORM CARD */}
-      <Card className="rounded-2xl border-border bg-card shadow-[var(--shadow-soft)] overflow-hidden">
+      {/* Tab Selector */}
+      <div className="flex gap-2 p-1.5 bg-secondary/20 rounded-2xl w-fit border border-border/40">
+        <button
+          onClick={() => setActiveTab("predictor")}
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition flex items-center gap-1.5 focus:outline-none ${
+            activeTab === "predictor"
+              ? "bg-primary text-primary-foreground shadow"
+              : "text-muted-foreground hover:bg-secondary/40 hover:text-foreground"
+          }`}
+        >
+          <Sparkles className="h-3.5 w-3.5" />
+          Smart Predictor
+        </button>
+        <button
+          onClick={() => setActiveTab("planner")}
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition flex items-center gap-1.5 focus:outline-none ${
+            activeTab === "planner"
+              ? "bg-primary text-primary-foreground shadow"
+              : "text-muted-foreground hover:bg-secondary/40 hover:text-foreground"
+          }`}
+        >
+          <Scale className="h-3.5 w-3.5" />
+          Batch Planner & Prices
+        </button>
+      </div>
+
+      {activeTab === "predictor" ? (
+        <>
+          {/* INPUTS FORM CARD */}
+          <Card className="rounded-2xl border-border bg-card shadow-[var(--shadow-soft)] overflow-hidden">
         <CardHeader className="bg-secondary/20 border-b border-border/40">
           <CardTitle className="flex items-center gap-2 text-primary font-bold text-lg">
             <Coffee className="h-5 w-5 text-accent" />
@@ -649,7 +840,7 @@ function DashboardHome() {
                 {/* Verification/Confirmation Checkbox */}
                 <div className="pt-2 border-t border-border/40 flex flex-wrap items-center justify-between gap-3">
                   <span className="text-[11px] text-muted-foreground font-semibold">
-                    Apakah data cuaca untuk <strong className="text-foreground">{activeLocation}</strong> di bawah ini sudah benar?
+                    Is the weather data for <strong className="text-foreground">{activeLocation}</strong> below correct?
                   </span>
                   <div className="flex gap-2">
                     <Button
@@ -662,7 +853,7 @@ function DashboardHome() {
                           : "border-border hover:bg-secondary/40"
                       }`}
                     >
-                      <Check className="h-3.5 w-3.5 mr-1" /> Ya, Sudah Benar
+                      <Check className="h-3.5 w-3.5 mr-1" /> Yes, Correct
                     </Button>
                     <Button
                       size="sm"
@@ -680,7 +871,7 @@ function DashboardHome() {
                       }}
                       className="h-7 px-3 rounded-lg border border-destructive/20 text-destructive hover:bg-destructive/10 text-xs font-bold"
                     >
-                      <X className="h-3.5 w-3.5 mr-1" /> Salah (Reset)
+                      <X className="h-3.5 w-3.5 mr-1" /> Incorrect (Reset)
                     </Button>
                   </div>
                 </div>
@@ -693,7 +884,7 @@ function DashboardHome() {
             <div className="space-y-6">
               <FormSliderRow
                 icon={CloudRain}
-                label="Rainfall (Curah Hujan)"
+                label="Rainfall"
                 value={rainfall}
                 onChange={setRainfall}
                 max={150}
@@ -702,7 +893,7 @@ function DashboardHome() {
               />
               <FormSliderRow
                 icon={Droplets}
-                label="Water Availability (Ketersediaan Air)"
+                label="Water Availability"
                 value={water}
                 onChange={setWater}
                 max={100}
@@ -713,7 +904,7 @@ function DashboardHome() {
             <div className="space-y-6">
               <FormSliderRow
                 icon={Thermometer}
-                label="Temperature (Suhu Lingkungan)"
+                label="Temperature"
                 value={temperature}
                 onChange={setTemperature}
                 min={10}
@@ -723,7 +914,7 @@ function DashboardHome() {
               />
               <FormSliderRow
                 icon={Wind}
-                label="Relative Humidity (Kelembapan RH)"
+                label="Relative Humidity (RH)"
                 value={humidity}
                 onChange={setHumidity}
                 max={100}
@@ -986,19 +1177,19 @@ function DashboardHome() {
                       <div className="p-3 border border-border rounded-xl">
                         <h4 className="font-bold text-foreground text-xs">RH &gt;70% Limit</h4>
                         <p className="text-muted-foreground text-[11px] mt-1 leading-relaxed">
-                          Tutup solar dryer jika hujan terdeteksi, atau aktifkan ventilasi pemanas jika RH terlalu tinggi.
+                          Close solar dryer if rain is detected, or activate heating ventilation if RH is too high.
                         </p>
                       </div>
                       <div className="p-3 border border-border rounded-xl">
-                        <h4 className="font-bold text-foreground text-xs">Suhu 20–35°C Target</h4>
+                        <h4 className="font-bold text-foreground text-xs">20–35°C Target Temperature</h4>
                         <p className="text-muted-foreground text-[11px] mt-1 leading-relaxed">
-                          Pertahankan sirkulasi udara konstan. Kurangi aliran udara panas jika suhu sensor melewati 35°C.
+                          Maintain constant air circulation. Reduce hot airflow if sensor temperature exceeds 35°C.
                         </p>
                       </div>
                       <div className="p-3 border border-border rounded-xl">
                         <h4 className="font-bold text-foreground text-xs">Ideal Moisture Target</h4>
                         <p className="text-muted-foreground text-[11px] mt-1 leading-relaxed">
-                          Menjaga kelembapan internal biji di 10–12% menjamin kualitas citarasa yang seragam dan stabil.
+                          Maintaining bean internal moisture at 10–12% ensures uniform and stable cup quality.
                         </p>
                       </div>
                     </div>
@@ -1085,7 +1276,7 @@ function DashboardHome() {
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Method impact risk:</span>
                       <span className="font-bold text-foreground">
-                        {recommendedData.name.includes("Washed") ? "Tinggi (Limbah Organik)" : "Sangat Rendah"}
+                        {recommendedData.name.includes("Washed") ? "High (Organic Waste)" : "Very Low"}
                       </span>
                     </div>
                     <div className="space-y-1">
@@ -1097,6 +1288,452 @@ function DashboardHome() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        </div>
+      )}
+    </>
+  ) : (
+    /* BATCH ALLOCATION PLANNER WORKSPACE */
+    <div className="grid gap-6 lg:grid-cols-5 animate-fade-in">
+          {/* LEFT COLUMN: CONFIGURATION */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card className="rounded-2xl border-border bg-card shadow-[var(--shadow-soft)]">
+              <CardHeader className="bg-secondary/20 border-b border-border/40">
+                <CardTitle className="flex items-center gap-2 text-primary font-bold text-lg">
+                  <Scale className="h-5 w-5 text-accent" />
+                  Harvest & Process Splits
+                </CardTitle>
+                <CardDescription>
+                  Define your coffee cherry harvest quantity and distribute it among different processing methods.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-6">
+                {/* Harvest quantity input */}
+                <div className="space-y-2">
+                  <Label htmlFor="harvest-weight" className="text-xs font-bold text-foreground flex justify-between">
+                    <span>TOTAL HARVEST QUANTITY (kg of Cherries)</span>
+                    <span className="text-accent font-bold">{totalCherryWeight.toLocaleString()} kg</span>
+                  </Label>
+                  <div className="flex gap-4 items-center">
+                    <Input
+                      id="harvest-weight"
+                      type="number"
+                      min={10}
+                      max={50000}
+                      value={totalCherryWeight}
+                      onChange={(e) => setTotalCherryWeight(Math.max(0, Number(e.target.value)))}
+                      className="bg-secondary/20 border-border/80 rounded-xl w-32 font-mono"
+                    />
+                    <Slider
+                      min={100}
+                      max={10000}
+                      step={100}
+                      value={[harvestSliderValue]}
+                      onValueChange={(val) => setHarvestSliderValue(val[0])}
+                      onValueCommit={(val) => setTotalCherryWeight(val[0])}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+
+                {/* Allocation splits numeric inputs */}
+                <div className="space-y-4 pt-4 border-t border-border/40">
+                  <h4 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Process Allocation splits (%)</h4>
+                  
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {/* Washed */}
+                    <div className="flex items-center justify-between gap-3 p-3 bg-secondary/10 rounded-xl border border-border/30">
+                      <div>
+                        <span className="font-semibold text-foreground flex items-center gap-1.5 text-xs">
+                          <span className="h-2.5 w-2.5 rounded-full bg-[#4682b4]" /> Washed
+                        </span>
+                        <span className="text-[10px] text-muted-foreground mt-0.5 block font-mono">
+                          {Math.round(plannerMetrics.allocations.washed).toLocaleString()} kg
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Input
+                          type="number"
+                          min={0}
+                          max={100}
+                          value={washedSplit}
+                          onChange={(e) => setWashedSplit(Math.max(0, Math.min(100, Number(e.target.value))))}
+                          className="w-16 h-8 text-right bg-background border-border/80 rounded-lg text-xs font-semibold font-mono"
+                        />
+                        <span className="text-[10px] text-muted-foreground">%</span>
+                      </div>
+                    </div>
+
+                    {/* Semi Washed */}
+                    <div className="flex items-center justify-between gap-3 p-3 bg-secondary/10 rounded-xl border border-border/30">
+                      <div>
+                        <span className="font-semibold text-foreground flex items-center gap-1.5 text-xs">
+                          <span className="h-2.5 w-2.5 rounded-full bg-[#27432b]" /> Semi-Washed
+                        </span>
+                        <span className="text-[10px] text-muted-foreground mt-0.5 block font-mono">
+                          {Math.round(plannerMetrics.allocations.semi_washed).toLocaleString()} kg
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Input
+                          type="number"
+                          min={0}
+                          max={100}
+                          value={semiWashedSplit}
+                          onChange={(e) => setSemiWashedSplit(Math.max(0, Math.min(100, Number(e.target.value))))}
+                          className="w-16 h-8 text-right bg-background border-border/80 rounded-lg text-xs font-semibold font-mono"
+                        />
+                        <span className="text-[10px] text-muted-foreground">%</span>
+                      </div>
+                    </div>
+
+                    {/* Honey */}
+                    <div className="flex items-center justify-between gap-3 p-3 bg-secondary/10 rounded-xl border border-border/30">
+                      <div>
+                        <span className="font-semibold text-foreground flex items-center gap-1.5 text-xs">
+                          <span className="h-2.5 w-2.5 rounded-full bg-[#d88f34]" /> Honey
+                        </span>
+                        <span className="text-[10px] text-muted-foreground mt-0.5 block font-mono">
+                          {Math.round(plannerMetrics.allocations.honey).toLocaleString()} kg
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Input
+                          type="number"
+                          min={0}
+                          max={100}
+                          value={honeySplit}
+                          onChange={(e) => setHoneySplit(Math.max(0, Math.min(100, Number(e.target.value))))}
+                          className="w-16 h-8 text-right bg-background border-border/80 rounded-lg text-xs font-semibold font-mono"
+                        />
+                        <span className="text-[10px] text-muted-foreground">%</span>
+                      </div>
+                    </div>
+
+                    {/* Wine */}
+                    <div className="flex items-center justify-between gap-3 p-3 bg-secondary/10 rounded-xl border border-border/30">
+                      <div>
+                        <span className="font-semibold text-foreground flex items-center gap-1.5 text-xs">
+                          <span className="h-2.5 w-2.5 rounded-full bg-[#b22222]" /> Wine
+                        </span>
+                        <span className="text-[10px] text-muted-foreground mt-0.5 block font-mono">
+                          {Math.round(plannerMetrics.allocations.wine).toLocaleString()} kg
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Input
+                          type="number"
+                          min={0}
+                          max={100}
+                          value={wineSplit}
+                          onChange={(e) => setWineSplit(Math.max(0, Math.min(100, Number(e.target.value))))}
+                          className="w-16 h-8 text-right bg-background border-border/80 rounded-lg text-xs font-semibold font-mono"
+                        />
+                        <span className="text-[10px] text-muted-foreground">%</span>
+                      </div>
+                    </div>
+
+                    {/* Natural */}
+                    <div className="flex items-center justify-between gap-3 p-3 bg-secondary/10 rounded-xl border border-border/30">
+                      <div>
+                        <span className="font-semibold text-foreground flex items-center gap-1.5 text-xs">
+                          <span className="h-2.5 w-2.5 rounded-full bg-[#42302c]" /> Natural
+                        </span>
+                        <span className="text-[10px] text-muted-foreground mt-0.5 block font-mono">
+                          {Math.round(plannerMetrics.allocations.natural).toLocaleString()} kg
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Input
+                          type="number"
+                          min={0}
+                          max={100}
+                          value={naturalSplit}
+                          onChange={(e) => setNaturalSplit(Math.max(0, Math.min(100, Number(e.target.value))))}
+                          className="w-16 h-8 text-right bg-background border-border/80 rounded-lg text-xs font-semibold font-mono"
+                        />
+                        <span className="text-[10px] text-muted-foreground">%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Split breakdown visualization progress bar */}
+                <div className="space-y-2 pt-4 border-t border-border/40">
+                  <div className="flex justify-between text-xs font-bold">
+                    <span>ALLOCATION VISUALIZATION</span>
+                    <span>Total: {totalAllocation}%</span>
+                  </div>
+                  <div className="h-4 w-full rounded-full overflow-hidden flex bg-secondary/30 border border-border/30">
+                    {washedSplit > 0 && <div className="bg-[#4682b4] transition-all" style={{ width: `${(washedSplit / Math.max(1, totalAllocation)) * 100}%` }} title={`Washed: ${washedSplit}%`} />}
+                    {semiWashedSplit > 0 && <div className="bg-[#27432b] transition-all" style={{ width: `${(semiWashedSplit / Math.max(1, totalAllocation)) * 100}%` }} title={`Semi-Washed: ${semiWashedSplit}%`} />}
+                    {honeySplit > 0 && <div className="bg-[#d88f34] transition-all" style={{ width: `${(honeySplit / Math.max(1, totalAllocation)) * 100}%` }} title={`Honey: ${honeySplit}%`} />}
+                    {wineSplit > 0 && <div className="bg-[#b22222] transition-all" style={{ width: `${(wineSplit / Math.max(1, totalAllocation)) * 100}%` }} title={`Wine: ${wineSplit}%`} />}
+                    {naturalSplit > 0 && <div className="bg-[#42302c] transition-all" style={{ width: `${(naturalSplit / Math.max(1, totalAllocation)) * 100}%` }} title={`Natural: ${naturalSplit}%`} />}
+                  </div>
+                </div>
+
+                {/* Validation warnings */}
+                {totalAllocation !== 100 ? (
+                  <div className="p-4 border border-destructive/20 bg-destructive/5 text-destructive rounded-xl text-xs flex gap-2 items-start leading-relaxed animate-pulse">
+                    <AlertTriangle className="h-4.5 w-4.5 shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold">Invalid splits total!</span> The current allocation sums to <strong>{totalAllocation}%</strong>. Please adjust the splits to total exactly <strong>100%</strong> to ensure valid resource & revenue projections.
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-4 border border-accent/20 bg-accent/5 text-accent rounded-xl text-xs flex gap-2 items-start leading-relaxed">
+                    <CheckCircle2 className="h-4.5 w-4.5 shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold">Perfect distribution!</span> Your splits sum to exactly <strong>100%</strong>. Click the button below to process and compute outcomes.
+                    </div>
+                  </div>
+                )}
+
+                {/* Process Allocation Trigger Button */}
+                <div className="pt-2">
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setCalculatedWeight(Number(totalCherryWeight));
+                      setCalculatedWashed(Number(washedSplit));
+                      setCalculatedSemiWashed(Number(semiWashedSplit));
+                      setCalculatedHoney(Number(honeySplit));
+                      setCalculatedWine(Number(wineSplit));
+                      setCalculatedNatural(Number(naturalSplit));
+                    }}
+                    disabled={totalAllocation !== 100}
+                    className="w-full bg-forest text-cream hover:bg-forest-deep rounded-xl font-bold py-2.5 shadow-md flex items-center justify-center gap-2 transition"
+                  >
+                    <Check className="h-4 w-4" /> Process Batch Allocation
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* RIGHT COLUMN: OUTCOMES */}
+          <div className="lg:col-span-3 space-y-6">
+            {calculatedWeight === null ? (
+              <Card className="rounded-2xl border-border bg-card shadow-[var(--shadow-soft)] min-h-[450px] flex flex-col justify-center items-center p-6 text-center border-dashed border-2 border-border/60 bg-secondary/5">
+                <div className="h-16 w-16 rounded-2xl bg-secondary/40 flex items-center justify-center text-accent mb-4 border border-border/40">
+                  <Scale className="h-8 w-8 animate-pulse text-accent" />
+                </div>
+                <h3 className="font-bold text-lg text-primary">Awaiting Process Allocation</h3>
+                <p className="text-sm text-muted-foreground max-w-sm mt-2">
+                  Please configure your total harvest volume and process percentage splits on the left. Ensure they total exactly 100%, then click the <strong>Process Batch Allocation</strong> button to view economic & resource projections.
+                </p>
+              </Card>
+            ) : (
+              <>
+                {/* Live Price Reference Card */}
+                <Card className="rounded-2xl border-border bg-card shadow-[var(--shadow-soft)] overflow-hidden">
+              <div className="p-5 flex flex-wrap items-center justify-between gap-4 bg-secondary/15 border-b border-border/40">
+                <div className="flex gap-3 items-center">
+                  <div className="p-2.5 rounded-lg bg-forest/15 text-forest shrink-0">
+                    <Globe className="h-5 w-5 animate-pulse" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">TradingEconomics Live Commodity Price</div>
+                    <div className="text-lg font-bold text-primary flex items-baseline gap-1.5 mt-0.5 font-mono">
+                      ${(priceCentsLbs / 100).toFixed(2)} <span className="text-xs text-muted-foreground font-normal">/ Lbs (pound)</span>
+                    </div>
+                  </div>
+                </div>
+                <Badge variant="secondary" className="bg-forest/15 text-forest border-transparent py-1 text-xs">
+                  🟢 Live Coffee feed OK
+                </Badge>
+              </div>
+              <CardContent className="p-5 grid gap-4 sm:grid-cols-2 text-xs">
+                <div className="p-3 bg-secondary/10 rounded-xl border border-border/30">
+                  <span className="text-muted-foreground block font-bold">Converted Price / kg (Green Coffee):</span>
+                  <span className="text-sm font-bold text-foreground mt-1 block font-mono">
+                    ${basePriceUsdKg.toFixed(2)} USD
+                  </span>
+                </div>
+                <div className="p-3 bg-secondary/10 rounded-xl border border-border/30">
+                  <span className="text-muted-foreground block font-bold">Converted Indonesian Rupiah (IDR):</span>
+                  <span className="text-sm font-bold text-foreground mt-1 block font-mono">
+                    Rp {Math.round(basePriceIdrKg).toLocaleString()} / kg
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Impact Metric Cards Grid */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              {/* Total Yield */}
+              <Card className="rounded-2xl border-border shadow-[var(--shadow-soft)] bg-card">
+                <CardContent className="p-5 flex items-center justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider block">Est. Green Coffee Yield</span>
+                    <span className="text-2xl font-extrabold text-primary block mt-1 font-mono">
+                      {plannerMetrics.totalGreenCoffee.toFixed(1)} kg
+                    </span>
+                    <span className="text-[10px] text-muted-foreground mt-1 block">~18% of cherry weight</span>
+                  </div>
+                  <div className="p-3 rounded-full bg-[#4682b4]/10 text-[#4682b4]">
+                    <Coffee className="h-6 w-6" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Projected Revenue */}
+              <Card className="rounded-2xl border-border shadow-[var(--shadow-soft)] bg-card">
+                <CardContent className="p-5 flex items-center justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider block">Projected Revenue</span>
+                    <span className="text-2xl font-extrabold text-forest block mt-1 font-mono">
+                      Rp {Math.round(plannerMetrics.totalRevenueIdr).toLocaleString()}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground mt-1 block">
+                      ~${Math.round(plannerMetrics.totalRevenueUsd).toLocaleString()} USD
+                    </span>
+                  </div>
+                  <div className="p-3 rounded-full bg-forest/10 text-forest">
+                    <TrendingUp className="h-6 w-6" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Water usage */}
+              <Card className="rounded-2xl border-border shadow-[var(--shadow-soft)] bg-card">
+                <CardContent className="p-5 flex items-center justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider block">Wastewater / Water Used</span>
+                    <span className="text-2xl font-extrabold text-[#4682b4] block mt-1 font-mono">
+                      {Math.round(plannerMetrics.totalWater).toLocaleString()} Liters
+                    </span>
+                    <span className="text-[10px] text-forest font-semibold mt-1 block flex items-center gap-1">
+                      🟢 Saves {Math.round(plannerMetrics.waterSavings).toLocaleString()} L vs washed
+                    </span>
+                  </div>
+                  <div className="p-3 rounded-full bg-[#4682b4]/10 text-[#4682b4]">
+                    <Droplets className="h-6 w-6" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Average Ecoscore */}
+              <Card className="rounded-2xl border-border shadow-[var(--shadow-soft)] bg-card">
+                <CardContent className="p-5 flex items-center justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider block">Average Ecoscore Impact</span>
+                    <span className="text-2xl font-extrabold text-[#d88f34] block mt-1 font-mono">
+                      {plannerMetrics.avgSustainabilityScore.toFixed(2)} / 1.00
+                    </span>
+                    <span className="text-[10px] text-muted-foreground mt-1 block">
+                      Sustainability Tier: <span className="font-bold text-foreground">{plannerMetrics.avgSustainabilityScore >= 0.66 ? "High" : plannerMetrics.avgSustainabilityScore >= 0.33 ? "Medium" : "Low"}</span>
+                    </span>
+                  </div>
+                  <div className="p-3 rounded-full bg-[#d88f34]/10 text-[#d88f34]">
+                    <Award className="h-6 w-6" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Recharts Charts Card */}
+            {(calculatedWashed + calculatedSemiWashed + calculatedHoney + calculatedWine + calculatedNatural) > 0 && (
+              <Card className="rounded-2xl border-border shadow-[var(--shadow-soft)] bg-card overflow-hidden">
+                <CardHeader>
+                  <CardTitle className="text-primary font-bold text-sm">Batch Allocations & Impact Visualizations</CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-6 md:grid-cols-2 p-6">
+                  {/* Pie Chart */}
+                  <div className="h-64 flex flex-col justify-center items-center">
+                    <div className="text-xs font-semibold text-muted-foreground mb-1">Harvest Distribution (%)</div>
+                    <ResponsiveContainer width="100%" height="90%">
+                      <PieChart>
+                        <Pie
+                          data={[
+                            { name: "Washed", value: calculatedWashed, color: "#4682b4" },
+                            { name: "Semi-Washed", value: calculatedSemiWashed, color: "#27432b" },
+                            { name: "Honey", value: calculatedHoney, color: "#d88f34" },
+                            { name: "Wine", value: calculatedWine, color: "#b22222" },
+                            { name: "Natural", value: calculatedNatural, color: "#42302c" },
+                          ].filter(d => d.value > 0)}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={80}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {[
+                            { name: "Washed", value: calculatedWashed, color: "#4682b4" },
+                            { name: "Semi-Washed", value: calculatedSemiWashed, color: "#27432b" },
+                            { name: "Honey", value: calculatedHoney, color: "#d88f34" },
+                            { name: "Wine", value: calculatedWine, color: "#b22222" },
+                            { name: "Natural", value: calculatedNatural, color: "#42302c" },
+                          ].filter(d => d.value > 0).map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <RTooltip formatter={(val) => `${val}%`} contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12 }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div className="flex flex-wrap gap-2 justify-center mt-2 text-[10px] font-semibold text-muted-foreground">
+                      {[
+                        { name: "Washed", value: calculatedWashed, color: "#4682b4" },
+                        { name: "Semi-Washed", value: calculatedSemiWashed, color: "#27432b" },
+                        { name: "Honey", value: calculatedHoney, color: "#d88f34" },
+                        { name: "Wine", value: calculatedWine, color: "#b22222" },
+                        { name: "Natural", value: calculatedNatural, color: "#42302c" },
+                      ].filter(d => d.value > 0).map(d => (
+                        <span key={d.name} className="flex items-center gap-1">
+                          <span className="h-2 w-2 rounded-full" style={{ backgroundColor: d.color }} /> {d.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Bar Chart */}
+                  <div className="h-64 flex flex-col justify-center">
+                    <div className="text-xs font-semibold text-center text-muted-foreground mb-1 font-bold">Water Use (L) vs Revenue (USD)</div>
+                    <ResponsiveContainer width="100%" height="90%">
+                      <BarChart data={[
+                        {
+                          name: "Washed",
+                          "Water (L)": Math.round(plannerMetrics.waterUsages.washed),
+                          "Rev (USD)": Math.round(plannerMetrics.revenuesUsd.washed),
+                        },
+                        {
+                          name: "Semi-Washed",
+                          "Water (L)": Math.round(plannerMetrics.waterUsages.semi_washed),
+                          "Rev (USD)": Math.round(plannerMetrics.revenuesUsd.semi_washed),
+                        },
+                        {
+                          name: "Honey",
+                          "Water (L)": Math.round(plannerMetrics.waterUsages.honey),
+                          "Rev (USD)": Math.round(plannerMetrics.revenuesUsd.honey),
+                        },
+                        {
+                          name: "Wine",
+                          "Water (L)": Math.round(plannerMetrics.waterUsages.wine),
+                          "Rev (USD)": Math.round(plannerMetrics.revenuesUsd.wine),
+                        },
+                        {
+                          name: "Natural",
+                          "Water (L)": Math.round(plannerMetrics.waterUsages.natural),
+                          "Rev (USD)": Math.round(plannerMetrics.revenuesUsd.natural),
+                        },
+                      ]}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                        <XAxis dataKey="name" tick={{ fill: "var(--muted-foreground)", fontSize: 9, fontWeight: "600" }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 9 }} axisLine={false} tickLine={false} />
+                        <RTooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12 }} />
+                        <Legend wrapperStyle={{ fontSize: 9, fontWeight: 600 }} />
+                        <Bar dataKey="Water (L)" fill="var(--chart-4)" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="Rev (USD)" fill="var(--chart-1)" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+              </>
+            )}
           </div>
         </div>
       )}

@@ -11,9 +11,22 @@ import {
   BookOpen,
   Scale,
   Award,
+  LogOut,
+  User,
+  LayoutDashboard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/hooks/useAuth";
 import heroImg from "@/assets/hero-coffee.jpg";
 
 export const Route = createFileRoute("/")({
@@ -31,6 +44,8 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
+  const { user, logout } = useAuth();
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Top nav */}
@@ -55,13 +70,55 @@ function Landing() {
             <a href="#why-terrabrew" className="text-muted-foreground hover:text-foreground transition">Why TerraBrew</a>
             <a href="#methods" className="text-muted-foreground hover:text-foreground transition">Methods</a>
           </nav>
-          <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" className="hidden sm:inline-flex">
-              <Link to="/dashboard">Sign in</Link>
-            </Button>
-            <Button asChild className="bg-coffee text-primary-foreground hover:bg-coffee-deep rounded-full px-5">
-              <Link to="/dashboard">Find Coffee Process</Link>
-            </Button>
+          <div className="flex items-center gap-4">
+            {user ? (
+              <>
+                <Button asChild variant="ghost" className="hidden sm:inline-flex text-muted-foreground hover:text-foreground">
+                  <Link to="/dashboard">Go to Dashboard</Link>
+                </Button>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary/80 hover:bg-secondary border border-border focus:outline-none transition shrink-0">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                          {user.full_name ? user.full_name.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2) : "US"}
+                        </AvatarFallback>
+                      </Avatar>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 rounded-xl p-1.5 shadow-md bg-card border-border">
+                    <DropdownMenuLabel className="px-2 py-1.5 text-xs text-muted-foreground font-semibold">
+                      Signed in as
+                      <div className="text-sm font-bold text-foreground truncate mt-0.5">{user.full_name}</div>
+                      <div className="text-[10px] uppercase font-bold tracking-wider text-accent truncate mt-0.5">
+                        {user.role === "farmer" ? "Petani (Farmer)" : "SEA Validator"}
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator className="my-1 border-border/40" />
+                    <DropdownMenuItem asChild className="rounded-lg py-2 cursor-pointer focus:bg-secondary/60">
+                      <Link to="/dashboard" className="flex items-center gap-2 text-sm w-full font-medium">
+                        <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
+                        Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={logout} className="rounded-lg py-2 cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive flex items-center gap-2 text-sm font-medium">
+                      <LogOut className="h-4 w-4 shrink-0" />
+                      Sign out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              <>
+                <Button asChild variant="ghost" className="hidden sm:inline-flex">
+                  <Link to="/dashboard">Sign in</Link>
+                </Button>
+                <Button asChild className="bg-coffee text-primary-foreground hover:bg-coffee-deep rounded-full px-5">
+                  <Link to="/dashboard">Find Coffee Process</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>

@@ -190,9 +190,9 @@ function CertificationPage() {
   };
 
   const getAwardLevel = (score: number) => {
-    if (score >= 0.66) return { name: "High Sustainability (Tinggi)", color: "text-[#10b981] bg-[#10b981]/15" };
-    if (score >= 0.33) return { name: "Medium Sustainability (Sedang)", color: "text-[#f59e0b] bg-[#f59e0b]/15" };
-    return { name: "Low Sustainability (Rendah)", color: "text-[#ef4444] bg-[#ef4444]/15" };
+    if (score >= 0.66) return { name: "High Sustainability", color: "text-[#10b981] bg-[#10b981]/15" };
+    if (score >= 0.33) return { name: "Medium Sustainability", color: "text-[#f59e0b] bg-[#f59e0b]/15" };
+    return { name: "Low Sustainability", color: "text-[#ef4444] bg-[#ef4444]/15" };
   };
 
   const pendingCertifications = useMemo(
@@ -364,8 +364,8 @@ function CertificationPage() {
                       )}
                       <span className="text-xs text-muted-foreground">
                         {envMetode === 0 
-                          ? "Washed needs Curah Hujan >= 30 mm/day and Suhu 20-30°C." 
-                          : "Honey/Natural needs Curah Hujan < 50 mm/day and Humidity < 75%."}
+                          ? "Washed needs Rainfall >= 30 mm/day and Temperature 20-30°C." 
+                          : "Honey/Natural needs Rainfall < 50 mm/day and Humidity < 75%."}
                       </span>
                     </div>
                   </div>
@@ -460,7 +460,7 @@ function CertificationPage() {
                 <div className="space-y-6">
                   {/* eco_kualitas */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold">COFFEE QUALITY (eco_kualitas, WAJIB)</Label>
+                    <Label className="text-xs font-bold">COFFEE QUALITY (eco_kualitas, REQUIRED)</Label>
                     <div className="flex gap-2">
                       <Button 
                         type="button" 
@@ -584,7 +584,7 @@ function CertificationPage() {
                 <div className="space-y-6">
                   {/* sos_kelompok */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold">COOPERATIVE / FARMER GROUP ACTIVE (sos_kelompok, WAJIB)</Label>
+                    <Label className="text-xs font-bold">COOPERATIVE / FARMER GROUP ACTIVE (sos_kelompok, REQUIRED)</Label>
                     <div className="flex gap-2">
                       <Button 
                         type="button" 
@@ -826,19 +826,19 @@ function CertificationPage() {
               <div className="grid gap-4 md:grid-cols-3">
                 <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
                   <CardHeader className="pb-3">
-                    <CardDescription>Belum diapprove</CardDescription>
+                    <CardDescription>Pending Review</CardDescription>
                     <CardTitle className="text-3xl font-extrabold text-honey">{pendingCertifications.length}</CardTitle>
                   </CardHeader>
                 </Card>
                 <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
                   <CardHeader className="pb-3">
-                    <CardDescription>Sudah diapprove</CardDescription>
+                    <CardDescription>Approved</CardDescription>
                     <CardTitle className="text-3xl font-extrabold text-forest">{approvedCertifications.length}</CardTitle>
                   </CardHeader>
                 </Card>
                 <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
                   <CardHeader className="pb-3">
-                    <CardDescription>Ditolak</CardDescription>
+                    <CardDescription>Rejected</CardDescription>
                     <CardTitle className="text-3xl font-extrabold text-destructive">{rejectedCertifications.length}</CardTitle>
                   </CardHeader>
                 </Card>
@@ -847,8 +847,8 @@ function CertificationPage() {
               <div className="grid gap-6 lg:grid-cols-2">
                 <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
                   <CardHeader>
-                    <CardTitle className="text-primary font-bold">Belum Diapprove</CardTitle>
-                    <CardDescription>Pengajuan yang masih menunggu validasi SEA.</CardDescription>
+                    <CardTitle className="text-primary font-bold">Pending Review</CardTitle>
+                    <CardDescription>Applications currently awaiting SEA validation.</CardDescription>
                   </CardHeader>
                   <CardContent className="p-0">
                     {pendingCertifications.length > 0 ? (
@@ -877,15 +877,15 @@ function CertificationPage() {
                         </table>
                       </div>
                     ) : (
-                      <div className="p-6 text-center text-muted-foreground">Tidak ada pengajuan pending.</div>
+                      <div className="p-6 text-center text-muted-foreground">No pending applications found.</div>
                     )}
                   </CardContent>
                 </Card>
 
                 <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
                   <CardHeader>
-                    <CardTitle className="text-primary font-bold">Sudah Diapprove</CardTitle>
-                    <CardDescription>Sertifikasi yang sudah selesai diverifikasi SEA.</CardDescription>
+                    <CardTitle className="text-primary font-bold">Approved</CardTitle>
+                    <CardDescription>Certifications fully verified and approved by SEA.</CardDescription>
                   </CardHeader>
                   <CardContent className="p-0">
                     {approvedCertifications.length > 0 ? (
@@ -917,7 +917,7 @@ function CertificationPage() {
                         </table>
                       </div>
                     ) : (
-                      <div className="p-6 text-center text-muted-foreground">Belum ada sertifikat yang disetujui.</div>
+                      <div className="p-6 text-center text-muted-foreground">No approved certificates yet.</div>
                     )}
                   </CardContent>
                 </Card>
@@ -926,8 +926,8 @@ function CertificationPage() {
               {rejectedCertifications.length > 0 && (
                 <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
                   <CardHeader>
-                    <CardTitle className="text-primary font-bold">Ditolak</CardTitle>
-                    <CardDescription>Pengajuan yang ditolak SEA beserta feedback validator.</CardDescription>
+                    <CardTitle className="text-primary font-bold">Rejected</CardTitle>
+                    <CardDescription>Applications rejected by SEA along with validator feedback.</CardDescription>
                   </CardHeader>
                   <CardContent className="p-0">
                     <div className="overflow-x-auto">
@@ -1034,19 +1034,19 @@ function CertificationPage() {
               <div className="grid gap-4 md:grid-cols-3">
                 <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
                   <CardHeader className="pb-3">
-                    <CardDescription>Belum diapprove</CardDescription>
+                    <CardDescription>Pending Review</CardDescription>
                     <CardTitle className="text-3xl font-extrabold text-honey">0</CardTitle>
                   </CardHeader>
                 </Card>
                 <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
                   <CardHeader className="pb-3">
-                    <CardDescription>Sudah diapprove</CardDescription>
+                    <CardDescription>Approved</CardDescription>
                     <CardTitle className="text-3xl font-extrabold text-forest">0</CardTitle>
                   </CardHeader>
                 </Card>
                 <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
                   <CardHeader className="pb-3">
-                    <CardDescription>Ditolak</CardDescription>
+                    <CardDescription>Rejected</CardDescription>
                     <CardTitle className="text-3xl font-extrabold text-destructive">0</CardTitle>
                   </CardHeader>
                 </Card>
@@ -1055,21 +1055,21 @@ function CertificationPage() {
               <div className="grid gap-6 lg:grid-cols-2">
                 <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
                   <CardHeader>
-                    <CardTitle className="text-primary font-bold">Belum Diapprove</CardTitle>
-                    <CardDescription>Pengajuan yang masih menunggu validasi SEA.</CardDescription>
+                    <CardTitle className="text-primary font-bold">Pending Review</CardTitle>
+                    <CardDescription>Applications currently awaiting SEA validation.</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="p-6 text-center text-muted-foreground">Tidak ada pengajuan pending.</div>
+                    <div className="p-6 text-center text-muted-foreground">No pending applications found.</div>
                   </CardContent>
                 </Card>
 
                 <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
                   <CardHeader>
-                    <CardTitle className="text-primary font-bold">Sudah Diapprove</CardTitle>
-                    <CardDescription>Sertifikasi yang sudah selesai diverifikasi SEA.</CardDescription>
+                    <CardTitle className="text-primary font-bold">Approved</CardTitle>
+                    <CardDescription>Certifications fully verified and approved by SEA.</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="p-6 text-center text-muted-foreground">Belum ada sertifikat yang disetujui.</div>
+                    <div className="p-6 text-center text-muted-foreground">No approved certificates yet.</div>
                   </CardContent>
                 </Card>
               </div>
