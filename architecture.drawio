@@ -1,0 +1,147 @@
+<mxfile host="Electron" modified="2026-07-03T05:14:48.000Z" agent="Mozilla/5.0" version="21.6.8">
+  <diagram id="terrabrew_architecture" name="TerraBrew Architecture Layers">
+    <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1000" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Header / Title -->
+        <mxCell id="header" value="TerraBrew Application Tech Architecture &amp; Data Flow" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=#1f2937" vertex="1" parent="1">
+          <mxGeometry x="100" y="10" width="800" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- ==================== PRESENTATION LAYER ==================== -->
+        <mxCell id="landing" value="Landing Page&#xa;(index.tsx)&#xa;• Header Auth Dropdown" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0284c7;strokeWidth=2;fontColor=#0369a1;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="100" y="80" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="predictor" value="Smart Predictor UI&#xa;(dashboard.index.tsx)&#xa;• Weather Parameter Sync" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0284c7;strokeWidth=2;fontColor=#0369a1;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="300" y="80" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="planner" value="Batch Planner UI&#xa;(dashboard.index.tsx)&#xa;• Keyb Splits &amp; Process btn" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0284c7;strokeWidth=2;fontColor=#0369a1;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="500" y="80" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="learn" value="Learn &amp; Certify UI&#xa;(learn/certification.tsx)&#xa;• Popups &amp; Ecoscores" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0284c7;strokeWidth=2;fontColor=#0369a1;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="700" y="80" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== NAVIGATION / ROUTING LAYER ==================== -->
+        <mxCell id="router" value="@tanstack/react-router&#xa;(File-Based Client Router)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fae8ff;strokeColor=#d946ef;strokeWidth=2;fontColor=#86198f;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="350" y="190" width="260" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== SERVER RPC LAYER ==================== -->
+        <mxCell id="auth_rpc" value="Auth Server RPC&#xa;(registerUser, loginUser)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#ca8a04;strokeWidth=2;fontColor=#854d0e;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="100" y="290" width="170" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="price_rpc" value="Coffee Price Scraper RPC&#xa;(getLiveCoffeePrice)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#ca8a04;strokeWidth=2;fontColor=#854d0e;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="300" y="290" width="170" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="data_rpc" value="Data &amp; Certs RPC&#xa;(submitCert, savePrediction)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#ca8a04;strokeWidth=2;fontColor=#854d0e;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="500" y="290" width="170" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="terry_rpc" value="Terry AI Chatbot RPC&#xa;(askTerryChatbot)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#ca8a04;strokeWidth=2;fontColor=#854d0e;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="700" y="290" width="170" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== EXTERNAL APIS & INTEGRATIONS ==================== -->
+        <mxCell id="meteo_api" value="Open-Meteo Weather API&#xa;• Client-Side Weather Sync" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#ef4444;strokeWidth=2;fontColor=#991b1b;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="100" y="420" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="te_scraper" value="TradingEconomics Page&#xa;• Commodity Index Scraper" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#ef4444;strokeWidth=2;fontColor=#991b1b;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="300" y="420" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="gemini_api" value="Gemini 2.5 Flash API&#xa;• System instruction Advisor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#ef4444;strokeWidth=2;fontColor=#991b1b;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="700" y="420" width="170" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== DATA & PERSISTENCE LAYER ==================== -->
+        <mxCell id="db_handler" value="Database client &amp; Fallback Handler&#xa;(Detects PostgreSQL status)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;strokeWidth=2;fontColor=#166534;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="250" y="530" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="mock_db" value="In-Memory Mock Database&#xa;(mockProfiles, mockCertifications, mockPredictions)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f4f6;strokeColor=#9ca3af;strokeWidth=2;fontColor=#374151;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="550" y="530" width="280" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== PHYSICAL STORAGE ==================== -->
+        <mxCell id="postgres_db" value="PostgreSQL Database&#xa;• Profiles&#xa;• Predictions&#xa;• Certifications" style="shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#dcfce7;strokeColor=#22c55e;strokeWidth=2;fontColor=#166534;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="280" y="650" width="180" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== CONNECTORS ==================== -->
+        
+        <!-- Presentation to Router -->
+        <mxCell id="edge_l_r" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#0284c7;strokeWidth=2;fillColor=none;" edge="1" parent="1" source="landing" target="router">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_p_r" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#0284c7;strokeWidth=2;fillColor=none;" edge="1" parent="1" source="predictor" target="router">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_pl_r" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#0284c7;strokeWidth=2;fillColor=none;" edge="1" parent="1" source="planner" target="router">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_le_r" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#0284c7;strokeWidth=2;fillColor=none;" edge="1" parent="1" source="learn" target="router">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Router to RPC Actions -->
+        <mxCell id="edge_r_au" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#d946ef;strokeWidth=2;fillColor=none;" edge="1" parent="1" source="router" target="auth_rpc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_r_pr" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#d946ef;strokeWidth=2;fillColor=none;" edge="1" parent="1" source="router" target="price_rpc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_r_da" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#d946ef;strokeWidth=2;fillColor=none;" edge="1" parent="1" source="router" target="data_rpc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_r_te" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#d946ef;strokeWidth=2;fillColor=none;" edge="1" parent="1" source="router" target="terry_rpc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Predictor to Weather API -->
+        <mxCell id="edge_p_me" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#0284c7;strokeWidth=2;fillColor=none;dashed=1;" edge="1" parent="1" source="predictor" target="meteo_api">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="320" y="170" />
+              <mxPoint x="200" y="170" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- RPC to Scrapers & APIs -->
+        <mxCell id="edge_pr_te" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#ca8a04;strokeWidth=2;fillColor=none;" edge="1" parent="1" source="price_rpc" target="te_scraper">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_te_ge" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#ca8a04;strokeWidth=2;fillColor=none;" edge="1" parent="1" source="terry_rpc" target="gemini_api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- RPC to Database Logic Layer -->
+        <mxCell id="edge_au_db" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#ca8a04;strokeWidth=2;fillColor=none;" edge="1" parent="1" source="auth_rpc" target="db_handler">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="180" y="500" />
+              <mxPoint x="310" y="500" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_da_db" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#ca8a04;strokeWidth=2;fillColor=none;" edge="1" parent="1" source="data_rpc" target="db_handler">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="585" y="500" />
+              <mxPoint x="430" y="500" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- DB Handler to PostgreSQL & Mock DB Fallbacks -->
+        <mxCell id="edge_db_pg" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#22c55e;strokeWidth=2;fillColor=none;" edge="1" parent="1" source="db_handler" target="postgres_db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_db_mock" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#9ca3af;strokeWidth=2;fillColor=none;dashed=1;" edge="1" parent="1" source="db_handler" target="mock_db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
