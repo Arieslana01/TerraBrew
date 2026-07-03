@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { askTerryChatbot } from "@/lib/auth-server";
 import { toast } from "sonner";
+import logoImg from "@/assets/logo.png";
 
 interface Message {
   role: "user" | "model";
@@ -202,9 +203,11 @@ export function TerryChatbot() {
           {/* Header */}
           <CardHeader className="p-4 border-b border-border/40 bg-gradient-to-r from-forest/10 via-primary/5 to-honey/10 flex flex-row items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-forest text-cream">
-                <Coffee className="h-5 w-5 animate-pulse" />
-              </div>
+              <img
+                src={logoImg}
+                alt="Terry Logo"
+                className="h-9 w-9 object-contain"
+              />
               <div>
                 <CardTitle className="text-sm font-bold text-primary flex items-center gap-1">
                   Terry

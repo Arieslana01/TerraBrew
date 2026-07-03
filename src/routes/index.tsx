@@ -28,11 +28,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import heroImg from "@/assets/hero-coffee.jpg";
+import logoImg from "@/assets/logo.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "TerraBrew — Sustainable Coffee Post-Harvest Decision Support" },
+      { title: "TerraBrew — Sustainability in Every Bean" },
       {
         name: "description",
         content:
@@ -52,12 +53,11 @@ function Landing() {
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <Link to="/" className="flex items-center gap-2">
-            <div
-              className="flex h-9 w-9 items-center justify-center rounded-xl text-cream animate-pulse"
-              style={{ background: "var(--gradient-eco)" }}
-            >
-              <Coffee className="h-5 w-5" />
-            </div>
+            <img
+              src={logoImg}
+              alt="TerraBrew Logo"
+              className="h-9 w-9 object-contain"
+            />
             <div className="leading-tight">
               <div className="text-sm font-bold tracking-tight text-foreground">TerraBrew</div>
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
@@ -76,7 +76,7 @@ function Landing() {
                 <Button asChild variant="ghost" className="hidden sm:inline-flex text-muted-foreground hover:text-foreground">
                   <Link to="/dashboard">Go to Dashboard</Link>
                 </Button>
-                
+
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary/80 hover:bg-secondary border border-border focus:outline-none transition shrink-0">
@@ -136,12 +136,10 @@ function Landing() {
               AI for sustainable coffee post-harvesting
             </Badge>
             <h1 className="text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl text-primary">
-              Empowering Coffee Farmers, <span className="text-accent">Sustainably.</span>
+              Sustainability in <br /> <span className="text-accent">Every Bean</span>
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-              TerraBrew helps Indonesian smallholder farmers select the most sustainable
-              coffee preprocessing method — Washed, Semi-Washed, Honey, Wine, or Natural — 
-              by analyzing real-time local weather, water availability, and crop characteristics.
+              Climate change makes coffee processing unpredictable. TerraBrew checks local weather and water levels to guide you to the best post-harvest method to secure higher quality coffee and better prices.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button
@@ -164,20 +162,6 @@ function Landing() {
                 </Link>
               </Button>
             </div>
-
-            <div className="mt-10 flex flex-wrap gap-6 text-sm text-muted-foreground">
-              {[
-                { icon: Leaf, label: "Eco-optimized scoring" },
-                { icon: Droplets, label: "Water-footprint awareness" },
-                { icon: CloudSun, label: "Weather-adaptive logic" },
-                { icon: ShieldCheck, label: "Scientific journal rules" },
-              ].map((b) => (
-                <div key={b.label} className="flex items-center gap-2">
-                  <b.icon className="h-4 w-4 text-forest" />
-                  {b.label}
-                </div>
-              ))}
-            </div>
           </div>
 
           <div className="relative">
@@ -188,7 +172,7 @@ function Landing() {
             <div className="relative overflow-hidden rounded-[2rem] border border-border bg-card shadow-[var(--shadow-elegant)]">
               <img
                 src={heroImg}
-                alt="Indonesian coffee drying on raised beds"
+                alt="Coffee drying on raised beds"
                 width={1536}
                 height={1024}
                 className="h-full w-full object-cover max-h-[400px]"
@@ -217,22 +201,18 @@ function Landing() {
               Connecting Agronomy with Sustainable Decision Support
             </h2>
             <p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-              TerraBrew is an interactive dashboard tailored for coffee processors and farmers in 
-              regions like Aceh Gayo, Toraja, Kintamani, and Ijen. By modeling post-harvest variables 
-              using agronomical journal thresholds, TerraBrew reduces quality defects and optimizes water 
-              footprints.
+              TerraBrew is an interactive tool tailored for coffee processors, cooperatives, and farmers. By modeling local climate variables and post-harvest parameters using agronomical science, TerraBrew reduces quality defects and optimizes water footprints.
             </p>
           </div>
 
-          <div className="mt-16 grid gap-8 md:grid-cols-3">
+          <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             <div className="p-6 rounded-2xl bg-background border border-border">
               <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-forest/10 text-forest mb-4">
                 <CloudSun className="h-5 w-5" />
               </div>
               <h3 className="text-lg font-bold">Climate Adaptation</h3>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                Weather inputs like Relative Humidity (RH), rainfall, and drying temperature determine drying rates 
-                and mold risks. TerraBrew prevents costly harvest losses.
+                Weather factors like humidity, rain, and temperature affect drying and mold risk. TerraBrew helps you adapt and avoid crop losses.
               </p>
             </div>
             <div className="p-6 rounded-2xl bg-background border border-border">
@@ -241,20 +221,74 @@ function Landing() {
               </div>
               <h3 className="text-lg font-bold">Water Conservation</h3>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                Coffee washing is one of the most water-heavy agricultural processes. We help farmers pivot to 
-                low-water methods (Honey, Wine, Natural) when water resources are strained.
+                Coffee washing consumes heavy amounts of water. We suggest low-water methods like Honey or Natural when water is limited.
               </p>
             </div>
             <div className="p-6 rounded-2xl bg-background border border-border">
               <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-honey/10 text-honey mb-4">
                 <Scale className="h-5 w-5" />
               </div>
-              <h3 className="text-lg font-bold">Chemical Consistency</h3>
+              <h3 className="text-lg font-bold">Quality Protection</h3>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                We integrate journal metrics including pH profiles, ester volatiles, lactic acids, and 
-                residual sugars to match fermentation targets with high-value specialty profiles.
+                Get processing recommendations that maximize the sweetness and grade of your beans, helping you sell for higher prices.
               </p>
             </div>
+            <div className="p-6 rounded-2xl bg-background border border-border">
+              <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-forest/10 text-forest mb-4">
+                <Leaf className="h-5 w-5" />
+              </div>
+              <h3 className="text-lg font-bold">Sustainability Metrics</h3>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                Track your farm's eco-score, water savings, and environmental impact to easily qualify for organic and green certifications.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section id="how-it-works" className="py-24 bg-background border-t border-border">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="text-center max-w-3xl mx-auto">
+            <Badge variant="outline" className="rounded-full border-forest/30 text-forest px-3 py-1">
+              How it works
+            </Badge>
+            <h2 className="mt-4 text-3xl font-bold md:text-4xl text-primary">
+              Simple Steps to Better Coffee Processing
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              Follow three simple steps to find the safest, most profitable way to process your coffee beans.
+            </p>
+          </div>
+
+          <div className="mt-16 grid gap-8 md:grid-cols-3">
+            {[
+              {
+                step: "1",
+                title: "Auto-Fetch Weather",
+                desc: "Our app automatically gets real-time temperature, humidity, and rainfall for your location.",
+              },
+              {
+                step: "2",
+                title: "Enter Farm Conditions",
+                desc: "Input your coffee variety, available water, and processing goals in a simple dashboard.",
+              },
+              {
+                step: "3",
+                title: "Get Recommendations",
+                desc: "Instantly see the best method (Washed, Honey, Natural, etc.) along with warnings for mold or drying risks.",
+              },
+            ].map((s) => (
+              <div key={s.step} className="relative p-8 rounded-2xl border border-border bg-card shadow-[var(--shadow-soft)]">
+                <div className="absolute -top-5 left-8 h-10 w-10 flex items-center justify-center rounded-xl bg-forest text-cream font-bold text-lg shadow-md">
+                  {s.step}
+                </div>
+                <h3 className="mt-4 text-lg font-bold text-foreground">{s.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                  {s.desc}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -268,10 +302,10 @@ function Landing() {
                 Why TerraBrew?
               </Badge>
               <h2 className="mt-4 text-3xl font-bold md:text-4xl text-primary">
-                A Smarter Post-Harvest Pathway for Indonesian Coffee
+                A Smarter Post-Harvest Pathway for Sustainable Coffee
               </h2>
               <p className="mt-4 text-muted-foreground leading-relaxed">
-                Traditional coffee processing relies heavily on intuition, leaving harvests vulnerable to sudden 
+                Traditional coffee processing relies heavily on intuition, leaving harvests vulnerable to sudden
                 changes in rain, humidity, or water shortage. TerraBrew bridges the gap:
               </p>
 
@@ -281,7 +315,7 @@ function Landing() {
                     <span className="text-xs font-bold">✓</span>
                   </div>
                   <div>
-                    <strong className="text-foreground">Reduce Mold and Defects:</strong> Instant warnings if relative humidity 
+                    <strong className="text-foreground">Reduce Mold and Defects:</strong> Instant warnings if relative humidity
                     exceeds 70% or if rainfall hampers critical drying phases.
                   </div>
                 </li>
@@ -290,7 +324,7 @@ function Landing() {
                     <span className="text-xs font-bold">✓</span>
                   </div>
                   <div>
-                    <strong className="text-foreground">Water-Aware Recommendations:</strong> Automatically steers farmers toward 
+                    <strong className="text-foreground">Water-Aware Recommendations:</strong> Automatically steers farmers toward
                     natural or honey processing when water availability drops below 40%.
                   </div>
                 </li>
@@ -299,7 +333,7 @@ function Landing() {
                     <span className="text-xs font-bold">✓</span>
                   </div>
                   <div>
-                    <strong className="text-foreground">Maximize Specialty Potential:</strong> Pre-fill and simulate weather 
+                    <strong className="text-foreground">Maximize Specialty Potential:</strong> Pre-fill and simulate weather
                     data using datasets like NASA EarthData and Open Weather indexes to secure premium grades.
                   </div>
                 </li>
@@ -371,10 +405,6 @@ function Landing() {
               />
               <h3 className="mt-4 text-lg font-bold text-foreground">{m.name}</h3>
               <p className="mt-1.5 text-xs text-muted-foreground font-semibold">{m.flavor}</p>
-              <div className="mt-4 pt-3 border-t border-border/60 text-[11px] text-muted-foreground space-y-1">
-                <div>💧 Water: <span className="font-semibold text-foreground">{m.water}</span></div>
-                <div>⚠️ Risk: <span className="font-semibold text-foreground">{m.risk}</span></div>
-              </div>
             </div>
           ))}
         </div>
@@ -449,7 +479,7 @@ function Landing() {
                 Ready to Process Smarter?
               </h2>
               <p className="mt-4 max-w-lg text-cream/80 leading-relaxed">
-                Connect your farm variables, test environment parameters against historical journals, 
+                Connect your farm variables, test environment parameters against historical journals,
                 and lock in your specialty coffee profits.
               </p>
             </div>

@@ -79,29 +79,10 @@ function HistoryPage() {
           <History className="h-3 w-3 text-forest animate-pulse" /> Processing History
         </div>
         <h1 className="mt-1 text-2xl font-bold md:text-3xl text-primary font-bold">Your past harvests</h1>
-        <p className="text-sm text-muted-foreground">A live log of TerraBrew recommendations queried directly from PostgreSQL.</p>
+        <p className="text-sm text-muted-foreground">A live log of your farm's past post-harvest recommendations.</p>
       </div>
 
-      {/* Connection Indicator Badge */}
-      <Card className="rounded-2xl border-border bg-card shadow-[var(--shadow-soft)] p-4">
-        <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
-          <div className="flex gap-2 items-center">
-            <Database className="h-4 w-4 text-accent shrink-0" />
-            <span className="font-semibold text-muted-foreground">
-              Status: {isDemo ? (
-                <span className="text-amber-600 font-bold">Database Empty (Showing Demo Logs)</span>
-              ) : (
-                <span className="text-forest font-bold">Active PostgreSQL Connection Live</span>
-              )}
-            </span>
-          </div>
-          {!isDemo && (
-            <Badge variant="secondary" className="bg-forest/15 text-forest border-transparent py-0.5">
-              Synced: {historyData.length} records loaded
-            </Badge>
-          )}
-        </div>
-      </Card>
+
 
       {/* Recent runs table */}
       <Card className="rounded-2xl border-border shadow-[var(--shadow-soft)] overflow-hidden">

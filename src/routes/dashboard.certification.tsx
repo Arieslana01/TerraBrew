@@ -47,24 +47,26 @@ function CertificationPage() {
   const [envCurahHujan, setEnvCurahHujan] = useState(30.0);
 
   // Step 1: Environmental Metrics (binary)
-  const [envMetode, setEnvMetode] = useState(0); // 0=washed, 1=honey/natural/semi-washed
-  const [envEnergi, setEnvEnergi] = useState(0); // 0=fosil, 1=terbarukan
-  const [envPestisida, setEnvPestisida] = useState(0); // 0=kimia, 1=tidak
-  const [envKonservasi, setEnvKonservasi] = useState(0); // 0=monokultur, 1=agroforestri
+  const [envMetode, setEnvMetode] = useState<number | null>(null); // 0=washed, 1=honey/natural/semi-washed
+  const [envEnergi, setEnvEnergi] = useState<number | null>(null); // 0=fosil, 1=terbarukan
+  const [envPestisida, setEnvPestisida] = useState<number | null>(null); // 0=kimia, 1=tidak
+  const [envKonservasi, setEnvKonservasi] = useState<number | null>(null); // 0=monokultur, 1=agroforestri
 
   // env_kesesuaian = calculated:
   // Washed (0): suitable if rainfall >= 30 and temperature is between 20-30
   // Honey/Natural (1): suitable if rainfall < 50 and humidity < 75
-  const envKesesuaian = (envMetode === 0)
-    ? (envCurahHujan >= 30 && envSuhu >= 20 && envSuhu <= 30 ? 1 : 0)
-    : (envCurahHujan < 50 && envRh < 75 ? 1 : 0);
+  const envKesesuaian = (envMetode === null)
+    ? 0
+    : (envMetode === 0)
+      ? (envCurahHujan >= 30 && envSuhu >= 20 && envSuhu <= 30 ? 1 : 0)
+      : (envCurahHujan < 50 && envRh < 75 ? 1 : 0);
 
   // Step 2: Economic Metrics
-  const [ecoKualitas, setEcoKualitas] = useState(1); // 0=grade rendah, 1=grade 1/specialty
-  const [ecoPendapatan, setEcoPendapatan] = useState(45000000); // Rp/tahun continuous
-  const [ecoLuasLahan, setEcoLuasLahan] = useState(2.5); // ha continuous
-  const [ecoProduksi, setEcoProduksi] = useState(1.2); // ton/ha continuous
-  const [ecoKredit, setEcoKredit] = useState(1); // 0=tidak ada, 1=ada
+  const [ecoKualitas, setEcoKualitas] = useState<number | null>(null); // 0=grade rendah, 1=grade 1/specialty
+  const [ecoPendapatan, setEcoPendapatan] = useState<number | null>(null); // Rp/tahun continuous
+  const [ecoLuasLahan, setEcoLuasLahan] = useState<number | null>(null); // ha continuous
+  const [ecoProduksi, setEcoProduksi] = useState<number | null>(null); // ton/ha continuous
+  const [ecoKredit, setEcoKredit] = useState<number | null>(null); // 0=tidak ada, 1=ada
 
   // Economic Normalization Min-Max constants
   const MIN_PENDAPATAN = 0;
@@ -74,24 +76,30 @@ function CertificationPage() {
   const MIN_PRODUKSI = 0;
   const MAX_PRODUKSI = 3;
 
-  const ecoPendapatanNorm = Math.min(1, Math.max(0, (ecoPendapatan - MIN_PENDAPATAN) / (MAX_PENDAPATAN - MIN_PENDAPATAN)));
-  const ecoLuasLahanNorm = Math.min(1, Math.max(0, (ecoLuasLahan - MIN_LUAS_LAHAN) / (MAX_LUAS_LAHAN - MIN_LUAS_LAHAN)));
-  const ecoProduksiNorm = Math.min(1, Math.max(0, (ecoProduksi - MIN_PRODUKSI) / (MAX_PRODUKSI - MIN_PRODUKSI)));
+  const ecoPendapatanNorm = ecoPendapatan === null ? 0 : Math.min(1, Math.max(0, (ecoPendapatan - MIN_PENDAPATAN) / (MAX_PENDAPATAN - MIN_PENDAPATAN)));
+  const ecoLuasLahanNorm = ecoLuasLahan === null ? 0 : Math.min(1, Math.max(0, (ecoLuasLahan - MIN_LUAS_LAHAN) / (MAX_LUAS_LAHAN - MIN_LUAS_LAHAN)));
+  const ecoProduksiNorm = ecoProduksi === null ? 0 : Math.min(1, Math.max(0, (ecoProduksi - MIN_PRODUKSI) / (MAX_PRODUKSI - MIN_PRODUKSI)));
 
   // Step 3: Social Metrics
-  const [sosKelompok, setSosKelompok] = useState(1); // 0=tidak aktif, 1=aktif
-  const [sosGender, setSosGender] = useState(1); // 0=tidak, 1=setara
-  const [sosPendidikan, setSosPendidikan] = useState(1); // 0=SD, 1=SMA+
-  const [sosHp, setSosHp] = useState(1); // 0=tidak ada, 1=ada
-  const [sosInternet, setSosInternet] = useState(1); // 0=tidak ada, 1=ada (mensyaratkan sosHp=1)
+  const [sosKelompok, setSosKelompok] = useState<number | null>(null); // 0=tidak aktif, 1=aktif
+  const [sosGender, setSosGender] = useState<number | null>(null); // 0=tidak, 1=setara
+  const [sosPendidikan, setSosPendidikan] = useState<number | null>(null); // 0=SD, 1=SMA+
+  const [sosHp, setSosHp] = useState<number | null>(null); // 0=tidak ada, 1=ada
+  const [sosInternet, setSosInternet] = useState<number | null>(null); // 0=tidak ada, 1=ada (mensyaratkan sosHp=1)
 
-  const actualSosInternet = sosHp === 0 ? 0 : sosInternet;
+  const actualSosInternet = sosHp === 0 ? 0 : (sosInternet === null ? 0 : sosInternet);
+
+  // Checks if complete
+  const isPillar1Complete = envMetode !== null && envEnergi !== null && envPestisida !== null && envKonservasi !== null;
+  const isPillar2Complete = ecoKualitas !== null && ecoKredit !== null;
+  const isPillar3Complete = sosKelompok !== null && sosGender !== null && sosPendidikan !== null && sosHp !== null && (sosHp === 0 || sosInternet !== null);
+  const isAllComplete = isPillar1Complete && isPillar2Complete && isPillar3Complete;
 
   // Calculations (decimal floats 0.0 - 1.0)
-  const envScore = (envKesesuaian + envMetode + envEnergi + envPestisida + envKonservasi) / 5;
-  const ecoScore = (ecoKualitas + ecoPendapatanNorm + ecoLuasLahanNorm + ecoProduksiNorm + ecoKredit) / 5;
-  const sosScore = (sosKelompok + sosGender + sosPendidikan + sosHp + actualSosInternet) / 5;
-  const ecoscore = (envScore + ecoScore + sosScore) / 3;
+  const envScore = isPillar1Complete ? (envKesesuaian + envMetode! + envEnergi! + envPestisida! + envKonservasi!) / 5 : 0;
+  const ecoScore = isPillar2Complete ? (ecoKualitas! + ecoPendapatanNorm + ecoLuasLahanNorm + ecoProduksiNorm + ecoKredit!) / 5 : 0;
+  const sosScore = isPillar3Complete ? (sosKelompok! + sosGender! + sosPendidikan! + sosHp! + actualSosInternet) / 5 : 0;
+  const ecoscore = isAllComplete ? (envScore + ecoScore + sosScore) / 3 : 0;
 
   // Fetch farmer's past certifications
   const { data: certifications, isLoading } = useQuery({
@@ -130,6 +138,22 @@ function CertificationPage() {
       }
       if (!region.trim()) {
         toast.error("Region/Province cannot be empty.");
+        return;
+      }
+      if (!isPillar1Complete) {
+        toast.error("Please answer all questions in Pillar 1 before proceeding.");
+        return;
+      }
+    }
+    if (step === 2) {
+      if (!isPillar2Complete) {
+        toast.error("Please answer all questions in Pillar 2 before proceeding.");
+        return;
+      }
+    }
+    if (step === 3) {
+      if (!isPillar3Complete) {
+        toast.error("Please answer all questions in Pillar 3 before proceeding.");
         return;
       }
     }
@@ -297,38 +321,80 @@ function CertificationPage() {
                 </div>                 <div className="space-y-6">
                   {/* Climate Conditions */}
                   <div className="bg-secondary/10 p-5 rounded-2xl border border-border/60 space-y-4">
-                    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Environmental Conditions (BMKG Parameters)</h4>
+                    <h4 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Environmental Conditions</h4>
                     <div className="grid gap-6 md:grid-cols-3">
                       {/* Temperature */}
                       <div className="space-y-2">
-                        <Label className="text-xs font-bold flex justify-between">
+                        <Label className="text-sm font-bold flex justify-between">
                           <span>TEMPERATURE</span>
                           <span className="text-forest font-semibold">{envSuhu.toFixed(1)} °C</span>
                         </Label>
-                        <Slider value={[envSuhu]} onValueChange={v => setEnvSuhu(v[0])} min={20} max={35} step={0.5} />
+                        <div className="flex items-center gap-3">
+                          <Slider value={[envSuhu]} onValueChange={v => setEnvSuhu(v[0])} min={20} max={35} step={0.5} className="flex-1" />
+                          <Input 
+                            type="number" 
+                            value={envSuhu} 
+                            onChange={e => {
+                              const val = parseFloat(e.target.value);
+                              if (!isNaN(val)) setEnvSuhu(Math.max(20, Math.min(35, val)));
+                            }}
+                            min={20}
+                            max={35}
+                            step={0.5}
+                            className="w-16 h-8 text-right bg-background border-border text-xs font-bold focus:ring-accent"
+                          />
+                        </div>
                       </div>
                       {/* Relative Humidity */}
                       <div className="space-y-2">
-                        <Label className="text-xs font-bold flex justify-between">
+                        <Label className="text-sm font-bold flex justify-between">
                           <span>RELATIVE HUMIDITY</span>
                           <span className="text-forest font-semibold">{envRh.toFixed(1)} %</span>
                         </Label>
-                        <Slider value={[envRh]} onValueChange={v => setEnvRh(v[0])} min={40} max={90} step={1} />
+                        <div className="flex items-center gap-3">
+                          <Slider value={[envRh]} onValueChange={v => setEnvRh(v[0])} min={40} max={90} step={1} className="flex-1" />
+                          <Input 
+                            type="number" 
+                            value={envRh} 
+                            onChange={e => {
+                              const val = parseFloat(e.target.value);
+                              if (!isNaN(val)) setEnvRh(Math.max(40, Math.min(90, val)));
+                            }}
+                            min={40}
+                            max={90}
+                            step={1}
+                            className="w-16 h-8 text-right bg-background border-border text-xs font-bold focus:ring-accent"
+                          />
+                        </div>
                       </div>
                       {/* Rainfall */}
                       <div className="space-y-2">
-                        <Label className="text-xs font-bold flex justify-between">
+                        <Label className="text-sm font-bold flex justify-between">
                           <span>DAILY RAINFALL</span>
                           <span className="text-forest font-semibold">{envCurahHujan.toFixed(1)} mm/day</span>
                         </Label>
-                        <Slider value={[envCurahHujan]} onValueChange={v => setEnvCurahHujan(v[0])} min={0} max={100} step={1} />
+                        <div className="flex items-center gap-3">
+                          <Slider value={[envCurahHujan]} onValueChange={v => setEnvCurahHujan(v[0])} min={0} max={100} step={1} className="flex-1" />
+                          <Input 
+                            type="number" 
+                            value={envCurahHujan} 
+                            onChange={e => {
+                              const val = parseFloat(e.target.value);
+                              if (!isNaN(val)) setEnvCurahHujan(Math.max(0, Math.min(100, val)));
+                            }}
+                            min={0}
+                            max={100}
+                            step={1}
+                            className="w-16 h-8 text-right bg-background border-border text-xs font-bold focus:ring-accent"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   {/* env_metode */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold">PROCESSING METHOD (env_metode)</Label>
+                    <Label className="text-sm font-bold">PROCESSING METHOD</Label>
                     <div className="flex gap-2">
                       <Button 
                         type="button" 
@@ -336,7 +402,7 @@ function CertificationPage() {
                         className={`flex-1 rounded-xl h-11 font-semibold ${envMetode === 0 ? "bg-forest text-cream hover:bg-forest-deep" : "border-border/80 text-foreground"}`}
                         onClick={() => setEnvMetode(0)}
                       >
-                        Washed Processing (0)
+                        Washed Processing
                       </Button>
                       <Button 
                         type="button" 
@@ -344,22 +410,22 @@ function CertificationPage() {
                         className={`flex-1 rounded-xl h-11 font-semibold ${envMetode === 1 ? "bg-forest text-cream hover:bg-forest-deep" : "border-border/80 text-foreground"}`}
                         onClick={() => setEnvMetode(1)}
                       >
-                        Honey / Natural / Semi-Washed (1)
+                        Honey / Natural / Semi-Washed
                       </Button>
                     </div>
                   </div>
 
                   {/* env_kesesuaian */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold">METHOD CLIMATE SUITABILITY (env_kesesuaian)</Label>
+                    <Label className="text-sm font-bold">METHOD CLIMATE SUITABILITY</Label>
                     <div className="flex items-center gap-3 bg-secondary/15 border border-border p-3.5 rounded-xl">
                       {envKesesuaian === 1 ? (
                         <Badge className="bg-forest/15 text-forest border-transparent rounded-full px-3 py-1 font-bold">
-                          SUITABLE (1)
+                          SUITABLE
                         </Badge>
                       ) : (
                         <Badge className="bg-destructive/15 text-destructive border-transparent rounded-full px-3 py-1 font-bold">
-                          UNSUITABLE (0)
+                          UNSUITABLE
                         </Badge>
                       )}
                       <span className="text-xs text-muted-foreground">
@@ -372,7 +438,7 @@ function CertificationPage() {
 
                   {/* env_energi */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold">ENERGY TYPE (env_energi)</Label>
+                    <Label className="text-sm font-bold">ENERGY TYPE</Label>
                     <div className="flex gap-2">
                       <Button 
                         type="button" 
@@ -380,7 +446,7 @@ function CertificationPage() {
                         className={`flex-1 rounded-xl h-11 font-semibold ${envEnergi === 0 ? "bg-forest text-cream hover:bg-forest-deep" : "border-border/80 text-foreground"}`}
                         onClick={() => setEnvEnergi(0)}
                       >
-                        Fossil Fuel (0)
+                        Fossil Fuel
                       </Button>
                       <Button 
                         type="button" 
@@ -388,14 +454,14 @@ function CertificationPage() {
                         className={`flex-1 rounded-xl h-11 font-semibold ${envEnergi === 1 ? "bg-forest text-cream hover:bg-forest-deep" : "border-border/80 text-foreground"}`}
                         onClick={() => setEnvEnergi(1)}
                       >
-                        Renewable / Solar Bed (1)
+                        Renewable / Solar Bed
                       </Button>
                     </div>
                   </div>
 
                   {/* env_pestisida */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold">PESTICIDE USAGE (env_pestisida)</Label>
+                    <Label className="text-sm font-bold">PESTICIDE USAGE</Label>
                     <div className="flex gap-2">
                       <Button 
                         type="button" 
@@ -403,7 +469,7 @@ function CertificationPage() {
                         className={`flex-1 rounded-xl h-11 font-semibold ${envPestisida === 0 ? "bg-forest text-cream hover:bg-forest-deep" : "border-border/80 text-foreground"}`}
                         onClick={() => setEnvPestisida(0)}
                       >
-                        Chemical Pesticides (0)
+                        Chemical Pesticides
                       </Button>
                       <Button 
                         type="button" 
@@ -411,14 +477,14 @@ function CertificationPage() {
                         className={`flex-1 rounded-xl h-11 font-semibold ${envPestisida === 1 ? "bg-forest text-cream hover:bg-forest-deep" : "border-border/80 text-foreground"}`}
                         onClick={() => setEnvPestisida(1)}
                       >
-                        No Chemical / Organic Only (1)
+                        No Chemical / Organic Only
                       </Button>
                     </div>
                   </div>
 
                   {/* env_konservasi */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold">SOIL CONSERVATION (env_konservasi)</Label>
+                    <Label className="text-sm font-bold">SOIL CONSERVATION</Label>
                     <div className="flex gap-2">
                       <Button 
                         type="button" 
@@ -426,7 +492,7 @@ function CertificationPage() {
                         className={`flex-1 rounded-xl h-11 font-semibold ${envKonservasi === 0 ? "bg-forest text-cream hover:bg-forest-deep" : "border-border/80 text-foreground"}`}
                         onClick={() => setEnvKonservasi(0)}
                       >
-                        Monoculture (0)
+                        Monoculture
                       </Button>
                       <Button 
                         type="button" 
@@ -434,14 +500,14 @@ function CertificationPage() {
                         className={`flex-1 rounded-xl h-11 font-semibold ${envKonservasi === 1 ? "bg-forest text-cream hover:bg-forest-deep" : "border-border/80 text-foreground"}`}
                         onClick={() => setEnvKonservasi(1)}
                       >
-                        Agroforestry / Shade Trees (1)
+                        Agroforestry / Shade Trees
                       </Button>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex justify-end p-4 bg-forest/5 rounded-xl border border-forest/15">
-                  <div className="text-sm font-bold text-primary">Sub-Total Environmental Score: <span className="text-forest text-lg ml-2">{(envScore).toFixed(2)} / 1.00</span></div>
+                  <div className="text-sm font-bold text-primary">Sub-Total Environmental Score: <span className="text-forest text-lg ml-2">{isPillar1Complete ? envScore.toFixed(2) : "—"} / 1.00</span></div>
                 </div>
               </div>
             )}
@@ -460,32 +526,29 @@ function CertificationPage() {
                 <div className="space-y-6">
                   {/* eco_kualitas */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold">COFFEE QUALITY (eco_kualitas, REQUIRED)</Label>
+                    <Label className="text-sm font-bold">COFFEE QUALITY</Label>
                     <div className="flex gap-2">
                       <Button 
                         type="button" 
-                        variant={ecoKualitas === 0 ? "default" : "outline"} 
-                        className={`flex-1 rounded-xl h-11 font-semibold ${ecoKualitas === 0 ? "bg-honey text-primary-foreground hover:bg-honey/95" : "border-border/80 text-foreground"}`}
                         onClick={() => setEcoKualitas(0)}
+                        className={`flex-1 rounded-xl h-11 font-semibold border transition-all ${ecoKualitas === 0 ? "bg-honey text-primary-foreground border-transparent hover:bg-honey/90" : "border-border/80 text-foreground bg-background hover:bg-secondary/40"}`}
                       >
-                        Low Grade (0)
+                        Low Grade
                       </Button>
                       <Button 
                         type="button" 
-                        variant={ecoKualitas === 1 ? "default" : "outline"} 
-                        className={`flex-1 rounded-xl h-11 font-semibold ${ecoKualitas === 1 ? "bg-honey text-primary-foreground hover:bg-honey/95" : "border-border/80 text-foreground"}`}
                         onClick={() => setEcoKualitas(1)}
+                        className={`flex-1 rounded-xl h-11 font-semibold border transition-all ${ecoKualitas === 1 ? "bg-honey text-primary-foreground border-transparent hover:bg-honey/90" : "border-border/80 text-foreground bg-background hover:bg-secondary/40"}`}
                       >
-                        Grade 1 / Specialty (1)
+                        Grade 1 / Specialty
                       </Button>
                     </div>
                   </div>
 
                   {/* eco_pendapatan */}
                   <div className="space-y-2">
-                    <Label htmlFor="eco-pendapatan" className="text-xs font-bold flex justify-between">
-                      <span>ANNUAL HOUSEHOLD INCOME (Rp/year)</span>
-                      <span className="text-honey font-bold">Normalized: {ecoPendapatanNorm.toFixed(2)}</span>
+                    <Label htmlFor="eco-pendapatan" className="text-sm font-bold block">
+                      ANNUAL HOUSEHOLD INCOME (Rp/year)
                     </Label>
                     <Input
                       id="eco-pendapatan"
@@ -493,18 +556,17 @@ function CertificationPage() {
                       min={0}
                       max={150000000}
                       placeholder="e.g. 45000000"
-                      value={ecoPendapatan}
-                      onChange={(e) => setEcoPendapatan(Number(e.target.value))}
+                      value={ecoPendapatan ?? ""}
+                      onChange={(e) => setEcoPendapatan(e.target.value === "" ? null : Number(e.target.value))}
                       className="bg-secondary/20 border-border/80 rounded-xl"
                     />
-                    <span className="text-[10px] text-muted-foreground block">Scale: Min Rp 0, Max Rp 150,000,000 / year</span>
+                    <span className="text-xs text-muted-foreground block">Scale: Min Rp 0, Max Rp 150,000,000 / year</span>
                   </div>
 
                   {/* eco_luas_lahan */}
                   <div className="space-y-2">
-                    <Label htmlFor="eco-luas-lahan" className="text-xs font-bold flex justify-between">
-                      <span>COFFEE LAND ACREAGE (hectares)</span>
-                      <span className="text-honey font-bold">Normalized: {ecoLuasLahanNorm.toFixed(2)}</span>
+                    <Label htmlFor="eco-luas-lahan" className="text-sm font-bold block">
+                      COFFEE LAND ACREAGE (hectares)
                     </Label>
                     <Input
                       id="eco-luas-lahan"
@@ -513,18 +575,17 @@ function CertificationPage() {
                       min={0}
                       max={10}
                       placeholder="e.g. 2.5"
-                      value={ecoLuasLahan}
-                      onChange={(e) => setEcoLuasLahan(Number(e.target.value))}
+                      value={ecoLuasLahan ?? ""}
+                      onChange={(e) => setEcoLuasLahan(e.target.value === "" ? null : Number(e.target.value))}
                       className="bg-secondary/20 border-border/80 rounded-xl"
                     />
-                    <span className="text-[10px] text-muted-foreground block">Scale: Min 0 ha, Max 10 ha</span>
+                    <span className="text-xs text-muted-foreground block">Scale: Min 0 ha, Max 10 ha</span>
                   </div>
 
                   {/* eco_produksi */}
                   <div className="space-y-2">
-                    <Label htmlFor="eco-produksi" className="text-xs font-bold flex justify-between">
-                      <span>COFFEE PRODUCTIVITY (ton/hectare/year)</span>
-                      <span className="text-honey font-bold">Normalized: {ecoProduksiNorm.toFixed(2)}</span>
+                    <Label htmlFor="eco-produksi" className="text-sm font-bold block">
+                      COFFEE PRODUCTIVITY (ton/hectare/year)
                     </Label>
                     <Input
                       id="eco-produksi"
@@ -533,39 +594,37 @@ function CertificationPage() {
                       min={0}
                       max={3}
                       placeholder="e.g. 1.2"
-                      value={ecoProduksi}
-                      onChange={(e) => setEcoProduksi(Number(e.target.value))}
+                      value={ecoProduksi ?? ""}
+                      onChange={(e) => setEcoProduksi(e.target.value === "" ? null : Number(e.target.value))}
                       className="bg-secondary/20 border-border/80 rounded-xl"
                     />
-                    <span className="text-[10px] text-muted-foreground block">Scale: Min 0 ton/ha, Max 3 ton/ha</span>
+                    <span className="text-xs text-muted-foreground block">Scale: Min 0 ton/ha, Max 3 ton/ha</span>
                   </div>
 
                   {/* eco_kredit */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold">BANK CREDIT / KUR ACCESS (eco_kredit)</Label>
+                    <Label className="text-sm font-bold">BANK CREDIT / KUR ACCESS</Label>
                     <div className="flex gap-2">
                       <Button 
                         type="button" 
-                        variant={ecoKredit === 0 ? "default" : "outline"} 
-                        className={`flex-1 rounded-xl h-11 font-semibold ${ecoKredit === 0 ? "bg-honey text-primary-foreground hover:bg-honey/95" : "border-border/80 text-foreground"}`}
                         onClick={() => setEcoKredit(0)}
+                        className={`flex-1 rounded-xl h-11 font-semibold border transition-all ${ecoKredit === 0 ? "bg-honey text-primary-foreground border-transparent hover:bg-honey/90" : "border-border/80 text-foreground bg-background hover:bg-secondary/40"}`}
                       >
-                        No Credit Access (0)
+                        No Credit Access
                       </Button>
                       <Button 
                         type="button" 
-                        variant={ecoKredit === 1 ? "default" : "outline"} 
-                        className={`flex-1 rounded-xl h-11 font-semibold ${ecoKredit === 1 ? "bg-honey text-primary-foreground hover:bg-honey/95" : "border-border/80 text-foreground"}`}
                         onClick={() => setEcoKredit(1)}
+                        className={`flex-1 rounded-xl h-11 font-semibold border transition-all ${ecoKredit === 1 ? "bg-honey text-primary-foreground border-transparent hover:bg-honey/90" : "border-border/80 text-foreground bg-background hover:bg-secondary/40"}`}
                       >
-                        Active KUR Credit / Finance (1)
+                        Active KUR Credit / Finance
                       </Button>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex justify-end p-4 bg-honey/5 rounded-xl border border-honey/15">
-                  <div className="text-sm font-bold text-primary">Sub-Total Economic Score: <span className="text-honey text-lg ml-2">{(ecoScore).toFixed(2)} / 1.00</span></div>
+                <div className="flex justify-end p-4 bg-forest/5 rounded-xl border border-forest/15">
+                  <div className="text-sm font-bold text-primary">Sub-Total Economic Score: <span className="text-forest text-lg ml-2">{isPillar2Complete ? ecoScore.toFixed(2) : "—"} / 1.00</span></div>
                 </div>
               </div>
             )}
@@ -584,130 +643,120 @@ function CertificationPage() {
                 <div className="space-y-6">
                   {/* sos_kelompok */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold">COOPERATIVE / FARMER GROUP ACTIVE (sos_kelompok, REQUIRED)</Label>
+                    <Label className="text-sm font-bold">COOPERATIVE / FARMER GROUP ACTIVE</Label>
                     <div className="flex gap-2">
                       <Button 
                         type="button" 
-                        variant={sosKelompok === 0 ? "default" : "outline"} 
-                        className={`flex-1 rounded-xl h-11 font-semibold ${sosKelompok === 0 ? "bg-chart-4 text-cream hover:bg-chart-4/95" : "border-border/80 text-foreground"}`}
                         onClick={() => setSosKelompok(0)}
+                        className={`flex-1 rounded-xl h-11 font-semibold border transition-all ${sosKelompok === 0 ? "bg-chart-4 text-cream border-transparent hover:bg-chart-4/90" : "border-border/80 text-foreground bg-background hover:bg-secondary/40"}`}
                       >
-                        Inactive (0)
+                        Inactive
                       </Button>
                       <Button 
                         type="button" 
-                        variant={sosKelompok === 1 ? "default" : "outline"} 
-                        className={`flex-1 rounded-xl h-11 font-semibold ${sosKelompok === 1 ? "bg-chart-4 text-cream hover:bg-chart-4/95" : "border-border/80 text-foreground"}`}
                         onClick={() => setSosKelompok(1)}
+                        className={`flex-1 rounded-xl h-11 font-semibold border transition-all ${sosKelompok === 1 ? "bg-chart-4 text-cream border-transparent hover:bg-chart-4/90" : "border-border/80 text-foreground bg-background hover:bg-secondary/40"}`}
                       >
-                        Active Member (1)
+                        Active Member
                       </Button>
                     </div>
                   </div>
 
                   {/* sos_gender */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold">GENDER EQUALITY & INCLUSION (sos_gender)</Label>
+                    <Label className="text-sm font-bold">GENDER EQUALITY & INCLUSION</Label>
                     <div className="flex gap-2">
                       <Button 
                         type="button" 
-                        variant={sosGender === 0 ? "default" : "outline"} 
-                        className={`flex-1 rounded-xl h-11 font-semibold ${sosGender === 0 ? "bg-chart-4 text-cream hover:bg-chart-4/95" : "border-border/80 text-foreground"}`}
                         onClick={() => setSosGender(0)}
+                        className={`flex-1 rounded-xl h-11 font-semibold border transition-all ${sosGender === 0 ? "bg-chart-4 text-cream border-transparent hover:bg-chart-4/90" : "border-border/80 text-foreground bg-background hover:bg-secondary/40"}`}
                       >
-                        No / Unequal Roles (0)
+                        No / Unequal Roles
                       </Button>
                       <Button 
                         type="button" 
-                        variant={sosGender === 1 ? "default" : "outline"} 
-                        className={`flex-1 rounded-xl h-11 font-semibold ${sosGender === 1 ? "bg-chart-4 text-cream hover:bg-chart-4/95" : "border-border/80 text-foreground"}`}
                         onClick={() => setSosGender(1)}
+                        className={`flex-1 rounded-xl h-11 font-semibold border transition-all ${sosGender === 1 ? "bg-chart-4 text-cream border-transparent hover:bg-chart-4/90" : "border-border/80 text-foreground bg-background hover:bg-secondary/40"}`}
                       >
-                        Equal / Fair Roles (1)
+                        Equal / Fair Roles
                       </Button>
                     </div>
                   </div>
 
                   {/* sos_pendidikan */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold">FARMER EDUCATION LEVEL (sos_pendidikan)</Label>
+                    <Label className="text-sm font-bold">FARMER EDUCATION LEVEL</Label>
                     <div className="flex gap-2">
                       <Button 
                         type="button" 
-                        variant={sosPendidikan === 0 ? "default" : "outline"} 
-                        className={`flex-1 rounded-xl h-11 font-semibold ${sosPendidikan === 0 ? "bg-chart-4 text-cream hover:bg-chart-4/95" : "border-border/80 text-foreground"}`}
                         onClick={() => setSosPendidikan(0)}
+                        className={`flex-1 rounded-xl h-11 font-semibold border transition-all ${sosPendidikan === 0 ? "bg-chart-4 text-cream border-transparent hover:bg-chart-4/90" : "border-border/80 text-foreground bg-background hover:bg-secondary/40"}`}
                       >
-                        Primary School / SD (0)
+                        Primary School / SD
                       </Button>
                       <Button 
                         type="button" 
-                        variant={sosPendidikan === 1 ? "default" : "outline"} 
-                        className={`flex-1 rounded-xl h-11 font-semibold ${sosPendidikan === 1 ? "bg-chart-4 text-cream hover:bg-chart-4/95" : "border-border/80 text-foreground"}`}
                         onClick={() => setSosPendidikan(1)}
+                        className={`flex-1 rounded-xl h-11 font-semibold border transition-all ${sosPendidikan === 1 ? "bg-chart-4 text-cream border-transparent hover:bg-chart-4/90" : "border-border/80 text-foreground bg-background hover:bg-secondary/40"}`}
                       >
-                        High School or Above / SMA+ (1)
+                        High School or Above / SMA+
                       </Button>
                     </div>
                   </div>
 
                   {/* sos_hp */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold">MOBILE PHONE & SIGNAL ACCESS (sos_hp)</Label>
+                    <Label className="text-sm font-bold">MOBILE PHONE & SIGNAL ACCESS</Label>
                     <div className="flex gap-2">
                       <Button 
                         type="button" 
-                        variant={sosHp === 0 ? "default" : "outline"} 
-                        className={`flex-1 rounded-xl h-11 font-semibold ${sosHp === 0 ? "bg-chart-4 text-cream hover:bg-chart-4/95" : "border-border/80 text-foreground"}`}
                         onClick={() => {
                           setSosHp(0);
                           setSosInternet(0);
                         }}
+                        className={`flex-1 rounded-xl h-11 font-semibold border transition-all ${sosHp === 0 ? "bg-chart-4 text-cream border-transparent hover:bg-chart-4/90" : "border-border/80 text-foreground bg-background hover:bg-secondary/40"}`}
                       >
-                        No Signal/Phone (0)
+                        No Signal/Phone
                       </Button>
                       <Button 
                         type="button" 
-                        variant={sosHp === 1 ? "default" : "outline"} 
-                        className={`flex-1 rounded-xl h-11 font-semibold ${sosHp === 1 ? "bg-chart-4 text-cream hover:bg-chart-4/95" : "border-border/80 text-foreground"}`}
                         onClick={() => setSosHp(1)}
+                        className={`flex-1 rounded-xl h-11 font-semibold border transition-all ${sosHp === 1 ? "bg-chart-4 text-cream border-transparent hover:bg-chart-4/90" : "border-border/80 text-foreground bg-background hover:bg-secondary/40"}`}
                       >
-                        Has Signal & Phone (1)
+                        Has Signal & Phone
                       </Button>
                     </div>
                   </div>
 
                   {/* sos_internet */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold flex justify-between">
-                      <span>INTERNET ACCESS (sos_internet)</span>
+                    <Label className="text-sm font-bold flex justify-between">
+                      <span>INTERNET ACCESS</span>
                       {sosHp === 0 && <span className="text-[10px] text-destructive font-semibold">Requires Phone/Signal Access</span>}
                     </Label>
                     <div className="flex gap-2">
                       <Button 
                         type="button" 
                         disabled={sosHp === 0}
-                        variant={actualSosInternet === 0 ? "default" : "outline"} 
-                        className={`flex-1 rounded-xl h-11 font-semibold ${actualSosInternet === 0 ? "bg-chart-4 text-cream hover:bg-chart-4/95" : "border-border/80 text-foreground"}`}
                         onClick={() => setSosInternet(0)}
+                        className={`flex-1 rounded-xl h-11 font-semibold border transition-all ${actualSosInternet === 0 ? "bg-chart-4 text-cream border-transparent hover:bg-chart-4/90" : "border-border/80 text-foreground bg-background hover:bg-secondary/40"}`}
                       >
-                        No Access (0)
+                        No Access
                       </Button>
                       <Button 
                         type="button" 
                         disabled={sosHp === 0}
-                        variant={actualSosInternet === 1 ? "default" : "outline"} 
-                        className={`flex-1 rounded-xl h-11 font-semibold ${actualSosInternet === 1 ? "bg-chart-4 text-cream hover:bg-chart-4/95" : "border-border/80 text-foreground"}`}
                         onClick={() => setSosInternet(1)}
+                        className={`flex-1 rounded-xl h-11 font-semibold border transition-all ${actualSosInternet === 1 ? "bg-chart-4 text-cream border-transparent hover:bg-chart-4/90" : "border-border/80 text-foreground bg-background hover:bg-secondary/40"}`}
                       >
-                        Has Internet Access (1)
+                        Has Internet Access
                       </Button>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex justify-end p-4 bg-chart-4/5 rounded-xl border border-chart-4/15">
-                  <div className="text-sm font-bold text-primary">Sub-Total Social Score: <span className="text-chart-4 text-lg ml-2">{(sosScore).toFixed(2)} / 1.00</span></div>
+                <div className="flex justify-end p-4 bg-forest/5 rounded-xl border border-forest/15">
+                  <div className="text-sm font-bold text-primary">Sub-Total Social Score: <span className="text-forest text-lg ml-2">{isPillar3Complete ? sosScore.toFixed(2) : "—"} / 1.00</span></div>
                 </div>
               </div>
             )}
@@ -731,33 +780,35 @@ function CertificationPage() {
                     <CardContent className="p-4 space-y-3.5 text-sm">
                       <div className="flex justify-between items-center">
                         <span className="flex items-center gap-2"><Leaf className="h-4 w-4 text-forest" /> Environmental Score:</span>
-                        <span className="font-bold text-forest">{(envScore).toFixed(2)} / 1.00</span>
+                        <span className="font-bold text-forest">{isPillar1Complete ? (envScore).toFixed(2) : "—"} / 1.00</span>
                       </div>
-                      <Progress value={envScore * 100} className="h-1 bg-border" style={{ "--progress-background": "var(--forest)" } as any} />
+                      <Progress value={isPillar1Complete ? envScore * 100 : 0} className="h-1 bg-border" style={{ "--progress-background": "var(--forest)" } as any} />
                       
                       <div className="flex justify-between items-center">
                         <span className="flex items-center gap-2"><Flame className="h-4 w-4 text-honey" /> Economic Score:</span>
-                        <span className="font-bold text-honey">{(ecoScore).toFixed(2)} / 1.00</span>
+                        <span className="font-bold text-honey">{isPillar2Complete ? (ecoScore).toFixed(2) : "—"} / 1.00</span>
                       </div>
-                      <Progress value={ecoScore * 100} className="h-1 bg-border" style={{ "--progress-background": "var(--honey)" } as any} />
+                      <Progress value={isPillar2Complete ? ecoScore * 100 : 0} className="h-1 bg-border" style={{ "--progress-background": "var(--honey)" } as any} />
 
                       <div className="flex justify-between items-center">
                         <span className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-chart-4" /> Social Score:</span>
-                        <span className="font-bold text-chart-4">{(sosScore).toFixed(2)} / 1.00</span>
+                        <span className="font-bold text-chart-4">{isPillar3Complete ? (sosScore).toFixed(2) : "—"} / 1.00</span>
                       </div>
-                      <Progress value={sosScore * 100} className="h-1 bg-border" style={{ "--progress-background": "var(--chart-4)" } as any} />
+                      <Progress value={isPillar3Complete ? sosScore * 100 : 0} className="h-1 bg-border" style={{ "--progress-background": "var(--chart-4)" } as any} />
                     </CardContent>
                   </Card>
 
                   <Card className="rounded-2xl border-transparent bg-linear-to-br from-forest/10 to-primary/5 flex flex-col justify-center items-center p-6 text-center border">
                     <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Overall Ecoscore Calculation</div>
-                    <div className="text-5xl font-black text-forest mt-2">{(ecoscore).toFixed(2)}</div>
+                    <div className="text-5xl font-black text-forest mt-2">{isAllComplete ? (ecoscore).toFixed(2) : "—"}</div>
                     <div className="text-[10px] uppercase font-bold text-primary mt-2">
                       Average of 3 Pillars (env + eco + sos) / 3
                     </div>
-                    <Badge className={`mt-4 rounded-full font-bold text-xs px-3 py-1 ${getAwardLevel(ecoscore).color}`}>
-                      Award: {getAwardLevel(ecoscore).name}
-                    </Badge>
+                    {isAllComplete && (
+                      <Badge className={`mt-4 rounded-full font-bold text-xs px-3 py-1 ${getAwardLevel(ecoscore).color}`}>
+                        Award: {getAwardLevel(ecoscore).name}
+                      </Badge>
+                    )}
                   </Card>
                 </div>
 

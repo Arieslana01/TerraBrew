@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
+import logoImg from "@/assets/logo.png";
+
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
@@ -71,14 +73,15 @@ function LoginPage() {
       <div className="absolute bottom-[-10%] right-[-10%] w-[35rem] h-[35rem] rounded-full opacity-25 blur-3xl pointer-events-none" style={{ background: "radial-gradient(circle, rgba(39, 67, 43, 0.15) 0%, transparent 70%)" }} />
 
       <div className="w-full max-w-md space-y-6 relative z-10">
-        <div className="text-center">
-          <Link to="/" className="inline-flex items-center gap-2 mb-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl text-cream" style={{ background: "var(--gradient-eco)" }}>
-              <Coffee className="h-5 w-5" />
-            </div>
-            <span className="text-xl font-bold tracking-tight text-foreground">TerraBrew</span>
+        <div className="flex flex-col items-center text-center">
+          <Link to="/" className="inline-flex items-center justify-center mb-2">
+            <img
+              src={logoImg}
+              alt="TerraBrew Logo"
+              className="h-20 w-20 object-contain"
+            />
           </Link>
-          <h2 className="text-2xl font-bold text-primary tracking-tight">Welcome Back</h2>
+          <h2 className="text-2xl font-bold text-primary tracking-tight mt-2">Welcome Back</h2>
           <p className="text-sm text-muted-foreground mt-1">Optimize coffee processing & manage sustainable certifications.</p>
         </div>
 

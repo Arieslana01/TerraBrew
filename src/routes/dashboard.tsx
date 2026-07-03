@@ -6,6 +6,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { SiteHeader } from "@/components/SiteHeader";
 import { TerryChatbot } from "@/components/TerryChatbot";
 import { Coffee } from "lucide-react";
+import logoImg from "@/assets/logo.png";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -34,9 +35,11 @@ function DashboardLayout() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground" style={{ background: "var(--gradient-hero)" }}>
-        <div className="flex h-14 w-14 items-center justify-center rounded-3xl text-cream animate-bounce mb-4" style={{ background: "var(--gradient-eco)" }}>
-          <Coffee className="h-8 w-8 animate-spin" style={{ animationDuration: '3s' }} />
-        </div>
+        <img
+          src={logoImg}
+          alt="TerraBrew Logo"
+          className="h-20 w-20 object-contain animate-pulse mb-4"
+        />
         <div className="text-sm font-bold tracking-tight text-primary animate-pulse">Loading TerraBrew Session...</div>
       </div>
     );

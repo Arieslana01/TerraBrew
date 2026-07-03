@@ -23,6 +23,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
+import logoImg from "@/assets/logo.png";
 
 export function AppSidebar() {
   const { user, logout } = useAuth();
@@ -54,12 +55,11 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
         <Link to="/" className="flex items-center gap-2 px-2 py-3">
-          <div
-            className="flex h-9 w-9 items-center justify-center rounded-xl"
-            style={{ background: "var(--gradient-eco)" }}
-          >
-            <Coffee className="h-5 w-5 text-sidebar-primary-foreground" />
-          </div>
+          <img
+            src={logoImg}
+            alt="TerraBrew Logo"
+            className="h-9 w-9 object-contain"
+          />
           <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
             <span className="text-sm font-semibold text-sidebar-foreground">
               TerraBrew
@@ -115,8 +115,12 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleLogout} tooltip="Sign Out" className="text-destructive hover:text-destructive/90 hover:bg-destructive/10">
-              <LogOut className="h-4 w-4" />
+            <SidebarMenuButton 
+              onClick={handleLogout} 
+              tooltip="Sign Out" 
+              className="text-sidebar-foreground/80 hover:text-red-500 hover:bg-red-500/10 font-semibold rounded-xl flex items-center gap-3 px-3 py-2.5 transition-all w-full"
+            >
+              <LogOut className="h-4 w-4 text-sidebar-foreground/60" />
               <span>Sign Out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
