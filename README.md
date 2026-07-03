@@ -1,18 +1,26 @@
 # TerraBrew
 
-![TerraBrew](https://img.shields.io/badge/TerraBrew-React%20%2B%20Vite-blue)
+![TerraBrew Logo](https://img.shields.io/badge/TerraBrew-%F0%9F%8C%8D-green?style=for-the-badge)
 
-TerraBrew is a modern dashboard application for coffee batch planning, pricing insights, and post-harvest prediction workflows. It is built with Vite, React, TypeScript, TanStack Router, Tailwind CSS, and data-driven UI components.
+## Sustainability in Every Bean
+
+TerraBrew is an evidence-based climate-adaptive coffee post-harvest advisor. It helps coffee producers choose the best processing method for current environmental conditions, translating scientific post-harvest knowledge into practical recommendations while explaining quality, water use, and risk trade-offs.
 
 ## 🚀 Overview
 
 This project provides:
 
-- A route-based dashboard with dedicated workspace pages
-- Batch planning and pricing calculations for coffee processes
-- Charts and visual data driven by Recharts and Tailwind UI
-- Role-aware sidebar navigation and page access
+- A climate-aware recommendation interface for coffee processing
+- Science-based guidance for washed, honey, natural, semi-washed, and fermentation choices
+- Insights on water efficiency, processing risk, and quality consistency
+- A web dashboard built for global coffee contexts
 - Support for local development with Vite
+
+## 🧠 Problem Statement
+
+Climate change is making coffee post-harvest processing increasingly unpredictable. Rising temperatures, irregular rainfall, fluctuating humidity, and water scarcity disrupt fermentation, drying, and processing efficiency, forcing producers to rely on inherited practices rather than evidence-based decision making.
+
+Without accessible decision support, processing choices often lead to inconsistent coffee quality, excessive water consumption, processing failures, and reduced economic value. TerraBrew bridges this gap by translating scientific post-harvest knowledge into practical, climate-adaptive recommendations with clear trade-offs.
 
 ## 🧩 Built With
 
@@ -100,7 +108,14 @@ If port `5173` is busy, Vite will use the next available port.
   ```
 - If the development server starts on a different port, use the URL shown in the terminal output.
 
-## 🙌 Contact
+## � Contributors
+
+- M. Aris Maulana — FullStack Developer
+- Nafisah Z. Hasan — Agricultural Specialist
+- Andreas B.S. — Business Specialist
+- Ladya Kalascha — AI & Data Engineer
+
+## �🙌 Contact
 
 If you want to improve or extend the project, update this README with your feature notes and environment setup details.
 
