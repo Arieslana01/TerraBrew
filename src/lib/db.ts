@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 // Database client for TerraBrew running PostgreSQL
 // This is executed only on the server. If run on the client, it returns mock methods.
 
@@ -75,7 +77,7 @@ export async function getDb() {
 
   if (sql) return sql;
 
-  const connectionString = process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/postgres";
+  const connectionString = process.env.DATABASE_URL || "postgres://apple@localhost:5432/terrabrew";
 
   try {
     const postgres = await import("postgres");

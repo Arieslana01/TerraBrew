@@ -1,8 +1,9 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState, useEffect, useRef } from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { savePrediction } from "@/lib/auth-server";
-import { toast } from "sonner";
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+import { db } from "@/db/db";
+import { recommendationHistory } from "@/db/schema";
 import {
   Droplets,
   Thermometer,
@@ -28,8 +29,6 @@ import {
   Globe,
   Check,
   X,
-  Layers,
-  Save,
 } from "lucide-react";
 import {
   Radar,
@@ -58,6 +57,39 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardHome,
 });
+
+// Server function to write prediction results into PostgreSQL database
+const saveRecommendationFn = createServerFn({ method: "POST" })
+  .validator(
+    z.object({
+      location: z.string(),
+      rainfall: z.number(),
+      water: z.number(),
+      temperature: z.number(),
+      humidity: z.number(),
+      grade: z.string(),
+      recommendedMethod: z.string(),
+      score: z.number(),
+    })
+  )
+  .handler(async ({ data }) => {
+    try {
+      const result = await db.insert(recommendationHistory).values({
+        location: data.location,
+        rainfall: data.rainfall,
+        water: data.water,
+        temperature: data.temperature,
+        humidity: data.humidity,
+        grade: data.grade,
+        recommendedMethod: data.recommendedMethod,
+        score: data.score,
+      }).returning();
+      return { success: true, record: result[0] };
+    } catch (e: any) {
+      console.error("Database insert error:", e);
+      throw new Error(e.message || "Failed to save recommendation");
+    }
+  });
 
 // Curated global coffee-growing presets (fallback and starting suggestions)
 const GLOBAL_COFFEE_PRESETS = [
@@ -226,16 +258,6 @@ const METHOD_DETAILS = {
 };
 
 function DashboardHome() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (user?.role === "sea") {
-      navigate({ to: "/dashboard/validate" });
-    }
-  }, [user, navigate]);
-
-  const [isSaving, setIsSaving] = useState(false);
   const [locationInput, setLocationInput] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<any[]>(GLOBAL_COFFEE_PRESETS);
@@ -452,39 +474,6 @@ function DashboardHome() {
 
   const recommendedData = METHOD_DETAILS[topKey];
 
-  const handleSavePrediction = async () => {
-    if (!user) {
-      toast.error("Please sign in first.");
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const res = await savePrediction({
-        data: {
-          farmerId: user.id,
-          locationName: activeLocation || locationInput || "Manual Input",
-          temperature: temperature[0],
-          humidity: humidity[0],
-          rainfall: rainfall[0],
-          waterAvailability: water[0].toString(),
-          recommendedMethod: recommendedData.name,
-        },
-      });
-
-      if (res.success) {
-        toast.success("Recommendation successfully saved to history!");
-      } else {
-        toast.error("Failed to save: " + res.error);
-      }
-    } catch (err: any) {
-      console.error(err);
-      toast.error("Failed to save to history: " + (err.message || "Unknown error"));
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   // Recharts Charting Data
   const radarData = useMemo(() => {
     return [
@@ -571,9 +560,9 @@ function DashboardHome() {
         <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-accent font-semibold">
           <Sparkles className="h-3.5 w-3.5 animate-spin" style={{ animationDuration: '4s' }} /> TerraBrew smart engine
         </div>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl text-primary">What's the Best Processing for Your Coffee?</h1>
-        <p className="text-sm text-muted-foreground mt-1 max-w-3xl leading-relaxed">
-          Good processing leads to premium, high-scoring coffee, ensuring a higher market price and increasing your income. Adjust variables manually or search for your farm's location to determine the best method.
+        <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl text-primary">Smart Post-Harvest Predictor</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">
+          Sync real-time weather by entering location names, raw coordinates (e.g. `6.25, -75.56`), or manually adjusting variables.
         </p>
       </div>
 
@@ -771,8 +760,27 @@ function DashboardHome() {
           <div className="flex justify-end pt-4 border-t border-border/40">
             <Button
               size="lg"
-              onClick={() => {
+              onClick={async () => {
                 setHasCalculated(true);
+                
+                // Write prediction to PostgreSQL Database via Server Function
+                try {
+                  await saveRecommendationFn({
+                    data: {
+                      location: activeLocation || "Manual Input",
+                      rainfall: rainfall[0],
+                      water: water[0],
+                      temperature: temperature[0],
+                      humidity: humidity[0],
+                      grade: grade,
+                      recommendedMethod: topKey,
+                      score: scores[topKey],
+                    }
+                  });
+                } catch (dbErr) {
+                  console.error("Failed to log to PostgreSQL:", dbErr);
+                }
+
                 // Scroll page smoothly to results
                 setTimeout(() => {
                   document.getElementById("recommendation-results")?.scrollIntoView({ behavior: "smooth" });
@@ -806,22 +814,9 @@ function DashboardHome() {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Badge className="rounded-full bg-cream px-4 py-1.5 text-xs font-bold text-primary hover:bg-cream/90 shadow-sm border-transparent">
-                  Recommendation Score: {scores[topKey]}%
-                </Badge>
-                {user && user.role === "farmer" && (
-                  <Button
-                    onClick={handleSavePrediction}
-                    disabled={isSaving}
-                    size="sm"
-                    className="rounded-full bg-forest text-cream hover:bg-forest-deep border-transparent text-xs font-bold gap-1.5 px-4 shadow-sm"
-                  >
-                    <Save className="h-3.5 w-3.5" />
-                    {isSaving ? "Saving..." : "Save to History"}
-                  </Button>
-                )}
-              </div>
+              <Badge className="rounded-full bg-cream px-4 py-1.5 text-xs font-bold text-primary hover:bg-cream/90 shadow-sm border-transparent">
+                Recommendation Score: {scores[topKey]}%
+              </Badge>
             </div>
 
             <CardContent className="p-6 space-y-6">

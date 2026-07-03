@@ -1,12 +1,33 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { History, Droplets, Thermometer, CloudRain, Leaf } from "lucide-react";
+import { createServerFn } from "@tanstack/react-start";
+import { db } from "@/db/db";
+import { recommendationHistory } from "@/db/schema";
+import { desc } from "drizzle-orm";
+import { History, Droplets, Thermometer, CloudRain, Leaf, Database } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@tanstack/react-query";
-import { getPredictionsHistory } from "@/lib/auth-server";
+
+// Server function to fetch history logs from PostgreSQL
+const getRecommendationHistoryFn = createServerFn({ method: "GET" })
+  .handler(async () => {
+    try {
+      const results = await db
+        .select()
+        .from(recommendationHistory)
+        .orderBy(desc(recommendationHistory.createdAt))
+        .limit(20);
+      return results;
+    } catch (e) {
+      console.error("Failed to query history from PostgreSQL database:", e);
+      return [];
+    }
+  });
 
 export const Route = createFileRoute("/dashboard/history")({
+  loader: async () => {
+    const historyData = await getRecommendationHistoryFn();
+    return { historyData };
+  },
   head: () => ({
     meta: [
       { title: "Processing History — TerraBrew" },
@@ -16,73 +37,76 @@ export const Route = createFileRoute("/dashboard/history")({
   component: HistoryPage,
 });
 
+// Map method names to standard UI color variables
+const colorMap: Record<string, string> = {
+  washed: "var(--chart-4)", // blue
+  semi_washed: "var(--forest)", // green
+  honey: "var(--honey)", // yellow
+  wine: "var(--chart-5)", // red
+  natural: "var(--coffee)", // brown
+};
+
 const defaultRows = [
-  { date: "May 09, 2026", method: "Honey Process", rain: 12, temp: 23, humidity: 70, eco: 85, color: "var(--honey)" },
-  { date: "May 06, 2026", method: "Washed Process", rain: 48, temp: 22, humidity: 84, eco: 55, color: "var(--chart-4)" },
-  { date: "May 03, 2026", method: "Natural Process", rain: 4, temp: 26, humidity: 62, eco: 95, color: "var(--coffee)" },
-  { date: "Apr 29, 2026", method: "Semi Washed Process", rain: 22, temp: 24, humidity: 75, eco: 75, color: "var(--forest)" },
-  { date: "Apr 25, 2026", method: "Wine Process", rain: 8, temp: 25, humidity: 55, eco: 90, color: "var(--chart-5)" },
+  { id: 99, location: "Medellín, Antioquia (Colombia)", rainfall: 12, temperature: 23, humidity: 70, score: 85, recommendedMethod: "honey", createdAt: new Date("2026-05-09T08:00:00Z").toISOString() },
+  { id: 98, location: "Aceh Gayo (Indonesia)", rainfall: 48, temperature: 22, humidity: 84, score: 55, recommendedMethod: "washed", createdAt: new Date("2026-05-06T10:30:00Z").toISOString() },
+  { id: 97, location: "Kintamani, Bali", rainfall: 4, temperature: 26, humidity: 62, score: 95, recommendedMethod: "natural", createdAt: new Date("2026-05-03T15:00:00Z").toISOString() },
+  { id: 96, location: "Wamena, Papua", rainfall: 22, temperature: 24, humidity: 75, score: 75, recommendedMethod: "semi_washed", createdAt: new Date("2026-04-29T09:15:00Z").toISOString() },
+  { id: 95, location: "Nyeri Highlands (Kenya)", rainfall: 8, temperature: 25, humidity: 55, score: 90, recommendedMethod: "wine", createdAt: new Date("2026-04-25T11:00:00Z").toISOString() },
 ];
 
 function HistoryPage() {
-  const { user } = useAuth();
+  const { historyData } = Route.useLoaderData();
 
-  const { data: dbPredictions, isLoading } = useQuery({
-    queryKey: ["predictions", user?.id],
-    queryFn: () => getPredictionsHistory({ data: { farmerId: user!.id } }),
-    enabled: !!user,
-  });
+  // If the database has no records (e.g. fresh setup), display fallback mock historical data
+  const isDemo = historyData.length === 0;
+  const rows = isDemo ? defaultRows : historyData;
 
-  const getMethodColor = (method: string) => {
-    if (method.toLowerCase().includes("honey")) return "var(--honey)";
-    if (method.toLowerCase().includes("semi")) return "var(--forest)";
-    if (method.toLowerCase().includes("washed")) return "var(--chart-4)";
-    if (method.toLowerCase().includes("wine")) return "var(--chart-5)";
-    return "var(--coffee)";
+  const formatDate = (isoString: string) => {
+    return new Date(isoString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
-
-  const getMethodEcoScore = (method: string) => {
-    if (method.toLowerCase().includes("natural")) return 95;
-    if (method.toLowerCase().includes("wine")) return 90;
-    if (method.toLowerCase().includes("honey")) return 85;
-    if (method.toLowerCase().includes("semi")) return 75;
-    return 55;
-  };
-
-  const formattedDbRows = dbPredictions
-    ? dbPredictions.map((p: any) => ({
-        date: new Date(p.createdAt).toLocaleDateString("id-ID", {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit"
-        }),
-        method: p.recommendedMethod,
-        rain: parseFloat(p.rainfall),
-        temp: parseFloat(p.temperature),
-        humidity: parseFloat(p.humidity),
-        eco: getMethodEcoScore(p.recommendedMethod),
-        color: getMethodColor(p.recommendedMethod),
-        isDb: true
-      }))
-    : [];
-
-  const rows = [...formattedDbRows, ...defaultRows];
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-6 text-foreground bg-background">
+      {/* Title section */}
       <div>
         <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground font-semibold">
-          <History className="h-3 w-3 text-forest" /> Processing History
+          <History className="h-3 w-3 text-forest animate-pulse" /> Processing History
         </div>
-        <h1 className="mt-1 text-2xl font-bold md:text-3xl text-primary">Your past harvests</h1>
-        <p className="text-sm text-muted-foreground">A timeline of TerraBrew runs and the methods recommended.</p>
+        <h1 className="mt-1 text-2xl font-bold md:text-3xl text-primary font-bold">Your past harvests</h1>
+        <p className="text-sm text-muted-foreground">A live log of TerraBrew recommendations queried directly from PostgreSQL.</p>
       </div>
 
-      <Card className="rounded-2xl border-border shadow-[var(--shadow-soft)]">
+      {/* Connection Indicator Badge */}
+      <Card className="rounded-2xl border-border bg-card shadow-[var(--shadow-soft)] p-4">
+        <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
+          <div className="flex gap-2 items-center">
+            <Database className="h-4 w-4 text-accent shrink-0" />
+            <span className="font-semibold text-muted-foreground">
+              Status: {isDemo ? (
+                <span className="text-amber-600 font-bold">Database Empty (Showing Demo Logs)</span>
+              ) : (
+                <span className="text-forest font-bold">Active PostgreSQL Connection Live</span>
+              )}
+            </span>
+          </div>
+          {!isDemo && (
+            <Badge variant="secondary" className="bg-forest/15 text-forest border-transparent py-0.5">
+              Synced: {historyData.length} records loaded
+            </Badge>
+          )}
+        </div>
+      </Card>
+
+      {/* Recent runs table */}
+      <Card className="rounded-2xl border-border shadow-[var(--shadow-soft)] overflow-hidden">
         <CardHeader>
-          <CardTitle className="text-primary font-bold">Recent runs</CardTitle>
+          <CardTitle className="text-primary font-bold text-lg">Recent runs</CardTitle>
           <CardDescription>Compare conditions to learn what works on your farm.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -90,81 +114,77 @@ function HistoryPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground border-b border-border pb-2">
-                  <th className="py-3">Date</th>
+                  <th className="py-3">Timestamp</th>
+                  <th className="py-3">Location</th>
                   <th className="py-3">Method</th>
                   <th className="py-3"><CloudRain className="inline h-3.5 w-3.5 mr-1" /> Rain</th>
                   <th className="py-3"><Thermometer className="inline h-3.5 w-3.5 mr-1" /> Temp</th>
                   <th className="py-3"><Droplets className="inline h-3.5 w-3.5 mr-1" /> Humidity</th>
-                  <th className="py-3"><Leaf className="inline h-3.5 w-3.5 mr-1" /> Eco Score</th>
+                  <th className="py-3"><Leaf className="inline h-3.5 w-3.5 mr-1" /> Match Score</th>
                 </tr>
               </thead>
               <tbody>
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-muted-foreground font-semibold">
-                      Memuat riwayat dari database...
-                    </td>
-                  </tr>
-                ) : (
-                  rows.map((r, index) => (
-                    <tr key={index} className="border-t border-border/60 hover:bg-secondary/10 transition-colors">
-                      <td className="py-4 font-bold text-foreground">
-                        {r.date}
-                        {r.isDb && (
-                          <Badge variant="outline" className="ml-2 rounded-full border-forest/30 text-forest text-[9px] font-bold py-0 h-4">
-                            Saved
-                          </Badge>
-                        )}
-                      </td>
+                {rows.map((r) => {
+                  const methodColor = colorMap[r.recommendedMethod] || "var(--muted)";
+                  const formattedMethodName = r.recommendedMethod
+                    .replace("_", " ")
+                    .replace(/\b\w/g, (c) => c.toUpperCase());
+
+                  return (
+                    <tr key={r.id} className="border-t border-border/60 hover:bg-secondary/10 transition-colors">
+                      <td className="py-4 font-semibold text-muted-foreground text-xs">{formatDate(r.createdAt)}</td>
+                      <td className="py-4 font-bold text-foreground max-w-[200px] truncate" title={r.location}>{r.location}</td>
                       <td className="py-4">
-                        <span className="inline-flex items-center gap-2 font-semibold">
-                          <span className="h-2.5 w-2.5 rounded-full" style={{ background: r.color }} />
-                          {r.method}
+                        <span className="inline-flex items-center gap-2 font-semibold text-xs">
+                          <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: methodColor }} />
+                          {formattedMethodName}
                         </span>
                       </td>
-                      <td className="py-4 text-muted-foreground">{r.rain} mm</td>
-                      <td className="py-4 text-muted-foreground">{r.temp}°C</td>
+                      <td className="py-4 text-muted-foreground">{r.rainfall} mm</td>
+                      <td className="py-4 text-muted-foreground">{r.temperature}°C</td>
                       <td className="py-4 text-muted-foreground">{r.humidity}%</td>
                       <td className="py-4">
-                        <Badge className="rounded-full bg-forest/15 text-forest border-transparent hover:bg-forest/15">{r.eco}/100</Badge>
+                        <Badge className="rounded-full bg-forest/15 text-forest border-transparent hover:bg-forest/15">{r.score}%</Badge>
                       </td>
                     </tr>
-                  ))
-                )}
+                  );
+                })}
               </tbody>
             </table>
           </div>
         </CardContent>
       </Card>
 
-      {/* Timeline */}
+      {/* Season timeline */}
       <Card className="rounded-2xl border-border shadow-[var(--shadow-soft)]">
         <CardHeader>
-          <CardTitle className="text-primary font-bold">Season timeline</CardTitle>
+          <CardTitle className="text-primary font-bold text-lg">Season timeline</CardTitle>
           <CardDescription>How your processing choices evolved with the climate.</CardDescription>
         </CardHeader>
         <CardContent>
           <ol className="relative ml-3 space-y-6 border-l border-border pl-6">
-            {isLoading ? (
-              <div className="text-sm text-muted-foreground">Memuat lini masa...</div>
-            ) : (
-              rows.map((r, index) => (
-                <li key={index} className="relative">
+            {rows.map((r) => {
+              const methodColor = colorMap[r.recommendedMethod] || "var(--muted)";
+              const formattedMethodName = r.recommendedMethod
+                .replace("_", " ")
+                .replace(/\b\w/g, (c) => c.toUpperCase());
+
+              return (
+                <li key={r.id} className="relative">
                   <span
                     className="absolute -left-[1.85rem] top-1.5 h-3.5 w-3.5 rounded-full ring-4 ring-background"
-                    style={{ background: r.color }}
+                    style={{ backgroundColor: methodColor }}
                   />
-                  <div className="text-xs text-muted-foreground font-semibold">
-                    {r.date}
-                    {r.isDb && <span className="ml-2 text-forest font-bold">[Database]</span>}
+                  <div className="text-[10px] text-muted-foreground font-semibold">{formatDate(r.createdAt)}</div>
+                  <div className="font-bold text-foreground mt-0.5 text-xs">
+                    {formattedMethodName} Process @ <span className="text-accent">{r.location}</span>
                   </div>
-                  <div className="font-bold text-foreground mt-0.5">{r.method}</div>
                   <div className="text-xs text-muted-foreground mt-1">
-                    {r.rain} mm rain · {r.temp}°C · {r.humidity}% humidity · Eco Score {r.eco}/100
+                    {r.rainfall} mm rain · {r.temperature}°C · {r.humidity}% humidity · Match Score {r.score}%
                   </div>
                 </li>
-              ))
-            )}
+              );
+            })}
           </ol>
         </CardContent>
       </Card>
