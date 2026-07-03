@@ -39,6 +39,7 @@ export function AppSidebar() {
       ]
     : [
         { title: "Best Coffee Process", url: "/dashboard", icon: LayoutDashboard },
+        { title: "Batch Planner & Prices", url: "/dashboard/batch-planner", icon: Leaf },
         { title: "Certification (Pro)", url: "/dashboard/certification", icon: Award },
         { title: "Learning Center", url: "/dashboard/learn", icon: BookOpen },
         { title: "Processing History", url: "/dashboard/history", icon: History },

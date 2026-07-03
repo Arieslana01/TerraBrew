@@ -19,6 +19,7 @@ import { Route as DashboardReviewRouteImport } from './routes/dashboard.review'
 import { Route as DashboardLearnRouteImport } from './routes/dashboard.learn'
 import { Route as DashboardHistoryRouteImport } from './routes/dashboard.history'
 import { Route as DashboardCertificationRouteImport } from './routes/dashboard.certification'
+import { Route as DashboardBatchPlannerRouteImport } from './routes/dashboard.batch-planner'
 import { Route as DashboardReviewCertIdRouteImport } from './routes/dashboard.review.$certId'
 
 const RegisterRoute = RegisterRouteImport.update({
@@ -71,6 +72,11 @@ const DashboardCertificationRoute = DashboardCertificationRouteImport.update({
   path: '/certification',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardBatchPlannerRoute = DashboardBatchPlannerRouteImport.update({
+  id: '/batch-planner',
+  path: '/batch-planner',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardReviewCertIdRoute = DashboardReviewCertIdRouteImport.update({
   id: '/$certId',
   path: '/$certId',
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/dashboard/batch-planner': typeof DashboardBatchPlannerRoute
   '/dashboard/certification': typeof DashboardCertificationRoute
   '/dashboard/history': typeof DashboardHistoryRoute
   '/dashboard/learn': typeof DashboardLearnRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/dashboard/batch-planner': typeof DashboardBatchPlannerRoute
   '/dashboard/certification': typeof DashboardCertificationRoute
   '/dashboard/history': typeof DashboardHistoryRoute
   '/dashboard/learn': typeof DashboardLearnRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/dashboard/batch-planner': typeof DashboardBatchPlannerRoute
   '/dashboard/certification': typeof DashboardCertificationRoute
   '/dashboard/history': typeof DashboardHistoryRoute
   '/dashboard/learn': typeof DashboardLearnRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/register'
+    | '/dashboard/batch-planner'
     | '/dashboard/certification'
     | '/dashboard/history'
     | '/dashboard/learn'
@@ -135,6 +145,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/register'
+    | '/dashboard/batch-planner'
     | '/dashboard/certification'
     | '/dashboard/history'
     | '/dashboard/learn'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/register'
+    | '/dashboard/batch-planner'
     | '/dashboard/certification'
     | '/dashboard/history'
     | '/dashboard/learn'
@@ -236,6 +248,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCertificationRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/batch-planner': {
+      id: '/dashboard/batch-planner'
+      path: '/batch-planner'
+      fullPath: '/dashboard/batch-planner'
+      preLoaderRoute: typeof DashboardBatchPlannerRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/review/$certId': {
       id: '/dashboard/review/$certId'
       path: '/$certId'
@@ -259,6 +278,7 @@ const DashboardReviewRouteWithChildren = DashboardReviewRoute._addFileChildren(
 )
 
 interface DashboardRouteChildren {
+  DashboardBatchPlannerRoute: typeof DashboardBatchPlannerRoute
   DashboardCertificationRoute: typeof DashboardCertificationRoute
   DashboardHistoryRoute: typeof DashboardHistoryRoute
   DashboardLearnRoute: typeof DashboardLearnRoute
@@ -268,6 +288,7 @@ interface DashboardRouteChildren {
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardBatchPlannerRoute: DashboardBatchPlannerRoute,
   DashboardCertificationRoute: DashboardCertificationRoute,
   DashboardHistoryRoute: DashboardHistoryRoute,
   DashboardLearnRoute: DashboardLearnRoute,
