@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { submitCertification, getFarmerCertifications } from "@/lib/auth-server";
@@ -195,6 +195,19 @@ function CertificationPage() {
     return { name: "Low Sustainability (Rendah)", color: "text-[#ef4444] bg-[#ef4444]/15" };
   };
 
+  const pendingCertifications = useMemo(
+    () => certifications?.filter((cert: any) => cert.status === "pending") ?? [],
+    [certifications],
+  );
+  const approvedCertifications = useMemo(
+    () => certifications?.filter((cert: any) => cert.status === "approved") ?? [],
+    [certifications],
+  );
+  const rejectedCertifications = useMemo(
+    () => certifications?.filter((cert: any) => cert.status === "rejected") ?? [],
+    [certifications],
+  );
+
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       {/* Header */}
@@ -220,7 +233,7 @@ function CertificationPage() {
 
       {isApplying ? (
         /* WIZARD CARD */
-        <Card className="rounded-3xl border-border/80 shadow-[var(--shadow-card)] overflow-hidden bg-card">
+        <Card className="rounded-3xl border-border/80 overflow-hidden bg-card" style={{ boxShadow: "var(--shadow-card)" }}>
           <CardHeader className="bg-secondary/15 border-b border-border/40 p-6">
             <div className="flex justify-between items-center text-xs text-muted-foreground mb-4">
               <span className="font-bold text-forest uppercase tracking-widest">STEP {step} OF 4</span>
@@ -736,7 +749,7 @@ function CertificationPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="rounded-2xl border-transparent bg-gradient-to-br from-forest/10 to-primary/5 flex flex-col justify-center items-center p-6 text-center border">
+                  <Card className="rounded-2xl border-transparent bg-linear-to-br from-forest/10 to-primary/5 flex flex-col justify-center items-center p-6 text-center border">
                     <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Overall Ecoscore Calculation</div>
                     <div className="text-5xl font-black text-forest mt-2">{(ecoscore).toFixed(2)}</div>
                     <div className="text-[10px] uppercase font-bold text-primary mt-2">
@@ -810,62 +823,145 @@ function CertificationPage() {
             <div className="p-8 text-center text-muted-foreground">Loading certification data...</div>
           ) : certifications && certifications.length > 0 ? (
             <div className="grid gap-6">
-              {/* Show Approved certificates first in full glory */}
-              {certifications.filter((c: any) => c.status === "approved").map((cert: any) => {
-                const award = getAwardLevel(Number(cert.ecoscore));
-                return (
-                  <Card key={cert.id} className="relative rounded-3xl border-2 border-honey bg-gradient-to-br from-[#FCFAF6] via-[#FFFDF9] to-[#F5EFE6] overflow-hidden shadow-[var(--shadow-elegant)] p-6 md:p-10 border-dashed">
-                    {/* Watermark badge */}
-                    <div className="absolute right-[-4%] top-[-4%] w-48 h-48 opacity-10 pointer-events-none rounded-full border-4 border-honey flex items-center justify-center text-honey font-bold select-none text-[60px] animate-pulse">
-                      SEA
+              <div className="grid gap-4 md:grid-cols-3">
+                <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
+                  <CardHeader className="pb-3">
+                    <CardDescription>Belum diapprove</CardDescription>
+                    <CardTitle className="text-3xl font-extrabold text-honey">{pendingCertifications.length}</CardTitle>
+                  </CardHeader>
+                </Card>
+                <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
+                  <CardHeader className="pb-3">
+                    <CardDescription>Sudah diapprove</CardDescription>
+                    <CardTitle className="text-3xl font-extrabold text-forest">{approvedCertifications.length}</CardTitle>
+                  </CardHeader>
+                </Card>
+                <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
+                  <CardHeader className="pb-3">
+                    <CardDescription>Ditolak</CardDescription>
+                    <CardTitle className="text-3xl font-extrabold text-destructive">{rejectedCertifications.length}</CardTitle>
+                  </CardHeader>
+                </Card>
+              </div>
+
+              <div className="grid gap-6 lg:grid-cols-2">
+                <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
+                  <CardHeader>
+                    <CardTitle className="text-primary font-bold">Belum Diapprove</CardTitle>
+                    <CardDescription>Pengajuan yang masih menunggu validasi SEA.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    {pendingCertifications.length > 0 ? (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground border-b border-border bg-secondary/10 px-6">
+                              <th className="py-3 px-6">Farm</th>
+                              <th className="py-3 px-6">Variety</th>
+                              <th className="py-3 px-6 text-center">Score</th>
+                              <th className="py-3 px-6">Date</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {pendingCertifications.map((c: any) => (
+                              <tr key={c.id} className="border-t border-border/60 hover:bg-secondary/15 transition-colors">
+                                <td className="py-4 px-6 font-bold text-foreground">{c.farm_name}</td>
+                                <td className="py-4 px-6 text-muted-foreground">{c.coffee_variety}</td>
+                                <td className="py-4 px-6 text-center font-bold text-honey">{Number(c.ecoscore).toFixed(2)}</td>
+                                <td className="py-4 px-6 text-muted-foreground text-xs">
+                                  {new Date(c.created_at).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="p-6 text-center text-muted-foreground">Tidak ada pengajuan pending.</div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
+                  <CardHeader>
+                    <CardTitle className="text-primary font-bold">Sudah Diapprove</CardTitle>
+                    <CardDescription>Sertifikasi yang sudah selesai diverifikasi SEA.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    {approvedCertifications.length > 0 ? (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground border-b border-border bg-secondary/10 px-6">
+                              <th className="py-3 px-6">Farm</th>
+                              <th className="py-3 px-6 text-center">Score</th>
+                              <th className="py-3 px-6">Validator</th>
+                              <th className="py-3 px-6">Proof</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {approvedCertifications.map((c: any) => (
+                              <tr key={c.id} className="border-t border-border/60 hover:bg-secondary/15 transition-colors">
+                                <td className="py-4 px-6 font-bold text-foreground">
+                                  <div>{c.farm_name}</div>
+                                  <div className="text-xs text-muted-foreground font-normal">{c.coffee_variety}</div>
+                                </td>
+                                <td className="py-4 px-6 text-center font-bold text-forest">{Number(c.ecoscore).toFixed(2)}</td>
+                                <td className="py-4 px-6 text-xs text-muted-foreground">{c.validator_name || "SEA Auditor"}</td>
+                                <td className="py-4 px-6 text-xs text-muted-foreground">
+                                  {c.validator_photo ? "Available" : "-"}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="p-6 text-center text-muted-foreground">Belum ada sertifikat yang disetujui.</div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              {rejectedCertifications.length > 0 && (
+                <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
+                  <CardHeader>
+                    <CardTitle className="text-primary font-bold">Ditolak</CardTitle>
+                    <CardDescription>Pengajuan yang ditolak SEA beserta feedback validator.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground border-b border-border bg-secondary/10 px-6">
+                            <th className="py-3 px-6">Farm</th>
+                            <th className="py-3 px-6 text-center">Score</th>
+                            <th className="py-3 px-6">Feedback</th>
+                            <th className="py-3 px-6">Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {rejectedCertifications.map((c: any) => (
+                            <tr key={c.id} className="border-t border-border/60 hover:bg-secondary/15 transition-colors">
+                              <td className="py-4 px-6 font-bold text-foreground">{c.farm_name}</td>
+                              <td className="py-4 px-6 text-center font-bold text-destructive">{Number(c.ecoscore).toFixed(2)}</td>
+                              <td className="py-4 px-6 text-xs text-muted-foreground max-w-sm">{c.validator_feedback || "-"}</td>
+                              <td className="py-4 px-6 text-muted-foreground text-xs">
+                                {new Date(c.created_at).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                    
-                    <div className="text-center space-y-4 max-w-2xl mx-auto border-2 border-honey/20 p-6 md:p-8 rounded-2xl bg-white/50 backdrop-blur-sm relative">
-                      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-honey/10 text-honey">
-                        <Award className="h-8 w-8" />
-                      </div>
-                      <div className="text-[10px] tracking-[0.3em] font-extrabold text-honey uppercase">OFFICIAL SPECIALTY COFFEE CERTIFICATE</div>
-                      <h2 className="text-3xl font-extrabold text-primary tracking-tight">{cert.farm_name}</h2>
-                      <div className="text-xs text-muted-foreground font-semibold">Has successfully verified specialty coffee & sustainability standards under SEA auditing</div>
-                      
-                      <div className="w-full border-t border-honey/25 my-4" />
+                  </CardContent>
+                </Card>
+              )}
 
-                      <div className="grid grid-cols-3 gap-2 py-2">
-                        <div>
-                          <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold">Coffee Variety</div>
-                          <div className="font-extrabold text-foreground text-sm mt-0.5">{cert.coffee_variety}</div>
-                        </div>
-                        <div>
-                          <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold">Final Ecoscore</div>
-                          <div className="font-extrabold text-forest text-base mt-0.5">{Number(cert.ecoscore).toFixed(2)}</div>
-                        </div>
-                        <div>
-                          <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold">Award Level</div>
-                          <div className="font-extrabold text-honey text-xs mt-0.5 uppercase">{award.name.split(" (")[0]}</div>
-                        </div>
-                      </div>
-
-                      <div className="w-full border-t border-honey/25 my-4" />
-
-                      <div className="text-xs text-left bg-secondary/20 p-4 rounded-xl border border-border/80">
-                        <span className="font-bold text-primary block text-[10px] uppercase tracking-widest mb-1">Validator Feedback ({cert.validator_name || "Auditor SEA"}):</span>
-                        <p className="text-muted-foreground italic">"{cert.validator_feedback || "Excellent effort. The farm maintains strong agroforestry structures and reduces water consumption using the honey process."}"</p>
-                      </div>
-
-                      <div className="flex justify-between items-center text-[9px] text-muted-foreground font-bold pt-4">
-                        <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> VALIDATION DATE: {new Date(cert.created_at).toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" })}</span>
-                        <span>CERTIFICATE ID: #{cert.id.toString().slice(0,8).toUpperCase()}</span>
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
-
-              {/* Table list of all submissions */}
-              <Card className="rounded-2xl border-border shadow-[var(--shadow-soft)]">
+              <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
                 <CardHeader>
                   <CardTitle className="text-primary font-bold">Certification Application History</CardTitle>
-                  <CardDescription>Status of your self-audited specialty coffee and ecoscore certification requests.</CardDescription>
+                  <CardDescription>Status of all certification requests in one list.</CardDescription>
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="overflow-x-auto">
@@ -890,10 +986,10 @@ function CertificationPage() {
                             <td className="py-4 px-6 text-muted-foreground text-xs">
                               {new Date(c.created_at).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}
                             </td>
-                             <td className="py-4 px-6 text-xs text-muted-foreground max-w-xs">
+                            <td className="py-4 px-6 text-xs text-muted-foreground max-w-xs">
                               {c.validator_feedback ? (
                                 <div className="flex flex-col gap-1">
-                                  <span className="truncate max-w-[150px] block">{c.validator_feedback}</span>
+                                  <span className="block truncate" style={{ maxWidth: 150 }}>{c.validator_feedback}</span>
                                   {c.validator_photo && (
                                     <Dialog>
                                       <DialogTrigger asChild>
@@ -901,7 +997,7 @@ function CertificationPage() {
                                           <Camera className="h-3.5 w-3.5 animate-pulse" /> View On-Site Proof
                                         </button>
                                       </DialogTrigger>
-                                      <DialogContent className="max-w-md rounded-3xl border-border bg-card p-6 shadow-[var(--shadow-elegant)]">
+                                      <DialogContent className="max-w-md rounded-3xl border-border bg-card p-6" style={{ boxShadow: "var(--shadow-elegant)" }}>
                                         <DialogHeader>
                                           <DialogTitle className="text-sm font-bold text-primary flex items-center gap-1.5">
                                             <ShieldCheck className="h-4 w-4 text-forest" /> On-Site Validation Proof
@@ -934,21 +1030,73 @@ function CertificationPage() {
               </Card>
             </div>
           ) : (
-            /* EMPTY STATE */
-            <Card className="rounded-3xl border-border border-dashed p-10 text-center flex flex-col items-center justify-center space-y-4 max-w-lg mx-auto mt-8">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-honey/10 text-honey">
-                <Award className="h-8 w-8" />
+            <div className="grid gap-6">
+              <div className="grid gap-4 md:grid-cols-3">
+                <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
+                  <CardHeader className="pb-3">
+                    <CardDescription>Belum diapprove</CardDescription>
+                    <CardTitle className="text-3xl font-extrabold text-honey">0</CardTitle>
+                  </CardHeader>
+                </Card>
+                <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
+                  <CardHeader className="pb-3">
+                    <CardDescription>Sudah diapprove</CardDescription>
+                    <CardTitle className="text-3xl font-extrabold text-forest">0</CardTitle>
+                  </CardHeader>
+                </Card>
+                <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
+                  <CardHeader className="pb-3">
+                    <CardDescription>Ditolak</CardDescription>
+                    <CardTitle className="text-3xl font-extrabold text-destructive">0</CardTitle>
+                  </CardHeader>
+                </Card>
               </div>
-              <div>
-                <h3 className="text-lg font-bold text-foreground">No certifications submitted yet</h3>
-                <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-                  Conduct a self-assessment of your Ecoscore (Environmental, Economic, Social) to apply for official verification from SEA.
-                </p>
+
+              <div className="grid gap-6 lg:grid-cols-2">
+                <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
+                  <CardHeader>
+                    <CardTitle className="text-primary font-bold">Belum Diapprove</CardTitle>
+                    <CardDescription>Pengajuan yang masih menunggu validasi SEA.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="p-6 text-center text-muted-foreground">Tidak ada pengajuan pending.</div>
+                  </CardContent>
+                </Card>
+
+                <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
+                  <CardHeader>
+                    <CardTitle className="text-primary font-bold">Sudah Diapprove</CardTitle>
+                    <CardDescription>Sertifikasi yang sudah selesai diverifikasi SEA.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="p-6 text-center text-muted-foreground">Belum ada sertifikat yang disetujui.</div>
+                  </CardContent>
+                </Card>
               </div>
-              <Button onClick={() => setIsApplying(true)} className="rounded-full bg-forest text-cream hover:bg-forest-deep px-5 shadow-sm font-bold mt-2">
-                Start First Application
-              </Button>
-            </Card>
+
+              <Card className="rounded-2xl border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
+                <CardHeader>
+                  <CardTitle className="text-primary font-bold">Certification Application History</CardTitle>
+                  <CardDescription>Status of all certification requests in one list.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="rounded-2xl border border-dashed border-border/60 p-8 text-center space-y-4">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-honey/10 text-honey mx-auto">
+                      <Award className="h-8 w-8" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-foreground">No certifications submitted yet</h3>
+                      <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
+                        Conduct a self-assessment of your Ecoscore (Environmental, Economic, Social) to apply for official verification from SEA.
+                      </p>
+                    </div>
+                    <Button onClick={() => setIsApplying(true)} className="rounded-full bg-forest text-cream hover:bg-forest-deep px-5 shadow-sm font-bold mt-2">
+                      Start First Application
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           )}
         </div>
       )}

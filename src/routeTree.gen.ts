@@ -15,9 +15,11 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardValidateRouteImport } from './routes/dashboard.validate'
+import { Route as DashboardReviewRouteImport } from './routes/dashboard.review'
 import { Route as DashboardLearnRouteImport } from './routes/dashboard.learn'
 import { Route as DashboardHistoryRouteImport } from './routes/dashboard.history'
 import { Route as DashboardCertificationRouteImport } from './routes/dashboard.certification'
+import { Route as DashboardReviewCertIdRouteImport } from './routes/dashboard.review.$certId'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -49,6 +51,11 @@ const DashboardValidateRoute = DashboardValidateRouteImport.update({
   path: '/validate',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardReviewRoute = DashboardReviewRouteImport.update({
+  id: '/review',
+  path: '/review',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardLearnRoute = DashboardLearnRouteImport.update({
   id: '/learn',
   path: '/learn',
@@ -64,6 +71,11 @@ const DashboardCertificationRoute = DashboardCertificationRouteImport.update({
   path: '/certification',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardReviewCertIdRoute = DashboardReviewCertIdRouteImport.update({
+  id: '/$certId',
+  path: '/$certId',
+  getParentRoute: () => DashboardReviewRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -73,8 +85,10 @@ export interface FileRoutesByFullPath {
   '/dashboard/certification': typeof DashboardCertificationRoute
   '/dashboard/history': typeof DashboardHistoryRoute
   '/dashboard/learn': typeof DashboardLearnRoute
+  '/dashboard/review': typeof DashboardReviewRouteWithChildren
   '/dashboard/validate': typeof DashboardValidateRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/review/$certId': typeof DashboardReviewCertIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -83,8 +97,10 @@ export interface FileRoutesByTo {
   '/dashboard/certification': typeof DashboardCertificationRoute
   '/dashboard/history': typeof DashboardHistoryRoute
   '/dashboard/learn': typeof DashboardLearnRoute
+  '/dashboard/review': typeof DashboardReviewRouteWithChildren
   '/dashboard/validate': typeof DashboardValidateRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/dashboard/review/$certId': typeof DashboardReviewCertIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -95,8 +111,10 @@ export interface FileRoutesById {
   '/dashboard/certification': typeof DashboardCertificationRoute
   '/dashboard/history': typeof DashboardHistoryRoute
   '/dashboard/learn': typeof DashboardLearnRoute
+  '/dashboard/review': typeof DashboardReviewRouteWithChildren
   '/dashboard/validate': typeof DashboardValidateRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/review/$certId': typeof DashboardReviewCertIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -108,8 +126,10 @@ export interface FileRouteTypes {
     | '/dashboard/certification'
     | '/dashboard/history'
     | '/dashboard/learn'
+    | '/dashboard/review'
     | '/dashboard/validate'
     | '/dashboard/'
+    | '/dashboard/review/$certId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -118,8 +138,10 @@ export interface FileRouteTypes {
     | '/dashboard/certification'
     | '/dashboard/history'
     | '/dashboard/learn'
+    | '/dashboard/review'
     | '/dashboard/validate'
     | '/dashboard'
+    | '/dashboard/review/$certId'
   id:
     | '__root__'
     | '/'
@@ -129,8 +151,10 @@ export interface FileRouteTypes {
     | '/dashboard/certification'
     | '/dashboard/history'
     | '/dashboard/learn'
+    | '/dashboard/review'
     | '/dashboard/validate'
     | '/dashboard/'
+    | '/dashboard/review/$certId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -184,6 +208,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardValidateRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/review': {
+      id: '/dashboard/review'
+      path: '/review'
+      fullPath: '/dashboard/review'
+      preLoaderRoute: typeof DashboardReviewRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/learn': {
       id: '/dashboard/learn'
       path: '/learn'
@@ -205,13 +236,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCertificationRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/review/$certId': {
+      id: '/dashboard/review/$certId'
+      path: '/$certId'
+      fullPath: '/dashboard/review/$certId'
+      preLoaderRoute: typeof DashboardReviewCertIdRouteImport
+      parentRoute: typeof DashboardReviewRoute
+    }
   }
 }
+
+interface DashboardReviewRouteChildren {
+  DashboardReviewCertIdRoute: typeof DashboardReviewCertIdRoute
+}
+
+const DashboardReviewRouteChildren: DashboardReviewRouteChildren = {
+  DashboardReviewCertIdRoute: DashboardReviewCertIdRoute,
+}
+
+const DashboardReviewRouteWithChildren = DashboardReviewRoute._addFileChildren(
+  DashboardReviewRouteChildren,
+)
 
 interface DashboardRouteChildren {
   DashboardCertificationRoute: typeof DashboardCertificationRoute
   DashboardHistoryRoute: typeof DashboardHistoryRoute
   DashboardLearnRoute: typeof DashboardLearnRoute
+  DashboardReviewRoute: typeof DashboardReviewRouteWithChildren
   DashboardValidateRoute: typeof DashboardValidateRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
@@ -220,6 +271,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardCertificationRoute: DashboardCertificationRoute,
   DashboardHistoryRoute: DashboardHistoryRoute,
   DashboardLearnRoute: DashboardLearnRoute,
+  DashboardReviewRoute: DashboardReviewRouteWithChildren,
   DashboardValidateRoute: DashboardValidateRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
